@@ -8,6 +8,7 @@
             <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required
                 autofocus autocomplete="name" />
             <x-input-error :messages="$errors->get('name')" class="mt-2" />
+                @error('name') <span style="color: red;">{{ $message }}</span> @enderror
         </div>
 
         <!-- Email Address -->
@@ -16,6 +17,7 @@
             <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')"
                 required autocomplete="username" />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
+                @error('email') <span style="color: red;">{{ $message }}</span> @enderror
         </div>
 
         {{-- Role --}}
@@ -27,6 +29,7 @@
                 <option value="restaurateur">Restaurateur (Owner of a restaurant)</option>
             </select>
             <x-input-error :messages="$errors->get('role')" class="mt-2" />
+                @error('role') <span style="color: red;">{{ $message }}</span> @enderror
         </div>
 
         <!-- Password -->

@@ -6,5 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Restaurant extends Model
 {
-    //
+    protected $fillable = ['user_id', 'name', 'address', 'description', 'logo_path'];
+
+    public function dishes()
+{
+    return $this->hasMany(Dish::class);
+}
 }

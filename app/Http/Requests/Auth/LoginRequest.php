@@ -82,4 +82,14 @@ class LoginRequest extends FormRequest
     {
         return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
     }
+
+    public function store(LoginRequest $request)
+{
+    $request->authenticate();
+    $request->session()->regenerate();
+
+    // redirectedIntended sends them back to the page they were trying to reach, 
+    // or to the dashboard if they just logged in normally.
+    return redirect()->intended('/dashboard');
+}
 }

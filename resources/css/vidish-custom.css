@@ -1,0 +1,50 @@
+/* resources/css/vidish-custom.css
+:root {
+    --charcoal-glass: rgba(20, 22, 26, 0.8); 
+    --coral: #FF5A5F;    
+    --coral-glow: rgba(255, 90, 95, 0.4);
+}
+
+.glass-section {
+    background: var(--charcoal-glass);
+    backdrop-filter: blur(30px) saturate(160%);
+    -webkit-backdrop-filter: blur(30px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.btn-coral {
+    background-color: var(--coral) !important;
+    color: white !important;
+    box-shadow: 0 10px 20px var(--coral-glow);
+    transition: all 0.3s ease;
+}
+
+.btn-coral:hover {
+    transform: scale(1.05);
+    filter: brightness(1.1);
+}
+
+.carousel-container {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 2rem;
+    padding: 2rem;
+    scrollbar-width: none;
+}
+
+.carousel-container::-webkit-scrollbar {
+    display: none;
+}
+
+.app-screenshot {
+    flex: 0 0 300px;
+    scroll-snap-align: center;
+    transform: perspective(1000px) rotateY(-15deg);
+    transition: all 0.5s ease;
+}
+
+.app-screenshot:hover {
+    transform: perspective(1000px) rotateY(0deg) scale(1.05);
+} */
