@@ -8,11 +8,14 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     $videos = Video::with('dish.restaurant')->latest()->get();
     return view('welcome', compact('videos'));
-})->middleware('guest');
+})->middleware('guest')->name('home');
 
 Route::get('/dashboard', function () {
+    if (!auth()->check()) {
+        return redirect('/?auth_trigger=login');
+    }
     return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

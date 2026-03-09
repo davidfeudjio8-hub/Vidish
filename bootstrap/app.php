@@ -10,13 +10,13 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
-    ->withMiddleware(function (Middleware $middleware){
-        // This tells Laravel where to redirect authenticated users
+    ->withMiddleware(function (Middleware $middleware) {
+        // Correctly chain the methods without the semicolon or extra parenthesis
         $middleware->redirectTo(
-            guests: '/login',      // Where to go if not logged in
-            users: '/dashboard'    // Where to go if already logged in (The "HOME" replacement)
+            guests: fn () => route('home', ['auth_trigger' => 'login']), // Match the key 'auth_trigger' to your Alpine logic
+            users: '/dashboard'
         );
     })
-    ->withExceptions(function (Exceptions $exceptions): void {
+    ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();

@@ -133,14 +133,10 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.min.js"></script>
 </head>
 
-<body class="antialiased text-white font-sans" <div x-data="{ 
-    open: {{ $errors->any() ? 'true' : 'false' }}, 
-    mode: '{{ $errors->has('name') || old('role') ? 'signup' : 'login' }}',
-    role: '{{ old('role', 'client') }}' 
-}">>
+<body class="antialiased text-white font-sans" >
     <div x-data="{
-        open: {{ $errors->any() ? 'true' : 'false' }},
-        mode: '{{ $errors->has('name') || old('role') ? 'signup' : 'login' }}',
+        open: {{ (request()->query('auth_trigger') === 'login' || $errors->any()) ? 'true' : 'false' }},
+        mode: '{{ $errors->has('name') || old('role') ? 'signup' : (request()->query('auth_trigger') === 'login' ? 'login' : 'login') }}',
         role: '{{ old('role', 'client') }}'
     }">
         <nav
@@ -420,6 +416,7 @@
                             <label
                                 class="text-[10px] text-gray-500 uppercase tracking-widest ml-4 mb-2 block">Name</label>
                             <input type="text" name="name" value="{{ old('name') }}"
+                                :placeholder="role === 'restaurateur' ? 'Restaurant Name' : 'Your Full Name'"
                                 class="w-full px-5 py-3 sm:px-6 sm:py-4 bg-white/5 border {{ $errors->has('name') ? 'border-coral' : 'border-white/10' }} rounded-2xl text-white outline-none transition-all">
                             @error('name')
                                 <span
@@ -432,6 +429,7 @@
                         <label class="text-[10px] text-gray-500 uppercase tracking-widest ml-4 mb-2 block">Email
                             Address</label>
                         <input type="email" name="email" value="{{ old('email') }}"
+                            :placeholder="role === 'restaurateur' ? 'business@restaurant.com' : 'hello@example.com'"
                             class="w-full px-5 py-3 sm:px-6 sm:py-4 bg-white/5 border {{ $errors->has('email') ? 'border-coral' : 'border-white/10' }} rounded-2xl text-white outline-none transition-all">
                         @error('email')
                             <span
@@ -450,11 +448,19 @@
                         <div class="mt-4">
                             <label class="text-[10px] text-gray-500 uppercase tracking-widest ml-4 mb-2 block">Confirm
                                 Security</label>
-                            <input type="password" name="password_confirmation" placeholder="Confirm Password"
+                            <input type="password" name="password_confirmation" placeholder="Repeat Security Key"
                                 required
                                 class="w-full px-5 py-3 sm:px-6 sm:py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:border-[#FF5A5F] outline-none transition-all placeholder:text-gray-600 text-sm">
                         </div>
                     </template>
+
+                    <div class="flex items-center ml-4 mt-2">
+                        <input id="remember_me" type="checkbox" name="remember"
+                            class="rounded border-white/10 bg-white/5 text-coral focus:ring-coral transition-all">
+                        <label for="remember_me" class="ml-2 text-[10px] text-gray-500 uppercase tracking-widest">
+                            Keep me signed in
+                        </label>
+                    </div>
 
                     <button type="submit"
                         class="btn-coral w-full py-4 sm:py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] sm:text-[11px] mt-6 shadow-2xl">
@@ -589,3 +595,14 @@
 </body>
 
 </html>
+<script>
+    document.addEventListener('alpine:init', () => {
+        // Find your auth component and trigger the mode
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('auth_trigger')) {
+            // This assumes your Alpine data variable for the overlay is 'showAuthModal'
+            // or whatever function you use to open it.
+            window.dispatchEvent(new CustomEvent('open-auth-overlay', { detail: 'login' }));
+        }
+    });
+</script>
