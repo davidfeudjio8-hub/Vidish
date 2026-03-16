@@ -28,7 +28,12 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        //redirection conditionnelle en fonction du rôle de l'utilisateur
+        if ($request->user()->role === 'restaurateur') {
+        return redirect()->route('vendor.dashboard');
+    }
+    //redirect pour les clients et autres.
+    return redirect()->intended(route('dashboard', absolute: false));
     }
 
     /**

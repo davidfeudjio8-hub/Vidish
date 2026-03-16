@@ -13,9 +13,14 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         // Correctly chain the methods without the semicolon or extra parenthesis
         $middleware->redirectTo(
-            guests: fn () => route('home', ['auth_trigger' => 'login']), // Match the key 'auth_trigger' to your Alpine logic
-            users: '/dashboard'
-        );
+    guests: fn () => route('login'),
+    users: function ($request) {
+        if ($request->user()->role === 'restaurateur') {
+            return route('vendor.dashboard');
+        }
+        return route('dashboard');
+    }
+);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

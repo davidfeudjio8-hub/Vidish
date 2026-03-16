@@ -1,5 +1,6 @@
 <?php
 use App\Models\Video;
+use App\Http\Controllers\Vendor\DashboardController;
 use App\Http\Controllers\RestaurantController;
 use App\Http\Controllers\DishController;
 use App\Http\Controllers\ProfileController;
@@ -25,5 +26,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/restaurants', [RestaurantController::class, 'store'])->name('restaurants.store');
     Route::post('/dishes', [DishController::class, 'store'])->name('dishes.store');
 });
+//un groupe de routes qui vérifie si l'utilisateur a bien le rôle restaurateur
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
 
+    // Dashboard du restaurateur (on utilise 'auth' pour l'instant pour tester)
+    Route::get('/vendor/dashboard', [DashboardController::class, 'index'])
+        ->name('vendor.dashboard');
+});
 require __DIR__.'/auth.php';
