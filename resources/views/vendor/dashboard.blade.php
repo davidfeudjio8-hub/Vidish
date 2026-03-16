@@ -5,16 +5,20 @@
                 <h2 class="text-2xl font-bold text-orange-600">Vidish Vendor</h2>
             </div>
             <nav class="mt-6">
-                <a href="#" class="flex items-center px-6 py-3 text-gray-700 bg-gray-200 border-r-4 border-orange-500">
+                <a href="#"
+                    class="flex items-center px-6 py-3 text-gray-700 bg-gray-200 border-r-4 border-orange-500">
                     <span class="mx-3">Tableau de bord</span>
                 </a>
-                <a href="#" class="flex items-center px-6 py-3 mt-2 text-gray-600 hover:bg-orange-50 hover:text-orange-600 transition">
+                <a href="{{ route('dashboard') }}"
+                    class="flex items-center px-6 py-3 mt-2 text-gray-600 hover:bg-orange-50 hover:text-orange-600 transition">
                     <span class="mx-3">Mes Plats</span>
                 </a>
-                <a href="#" class="flex items-center px-6 py-3 mt-2 text-gray-600 hover:bg-orange-50 hover:text-orange-600 transition">
+                <a href="#"
+                    class="flex items-center px-6 py-3 mt-2 text-gray-600 hover:bg-orange-50 hover:text-orange-600 transition">
                     <span class="mx-3">Statistiques Vidéos</span>
                 </a>
-                <a href="#" class="flex items-center px-6 py-3 mt-2 text-gray-600 hover:bg-orange-50 hover:text-orange-600 transition">
+                <a href="#"
+                    class="flex items-center px-6 py-3 mt-2 text-gray-600 hover:bg-orange-50 hover:text-orange-600 transition">
                     <span class="mx-3">Paramètres Resto</span>
                 </a>
             </nav>
