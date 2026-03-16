@@ -11,16 +11,23 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Correctly chain the methods without the semicolon or extra parenthesis
+        
+        // 1. Gestion des redirections automatiques
         $middleware->redirectTo(
-    guests: fn () => route('login'),
-    users: function ($request) {
-        if ($request->user()->role === 'restaurateur') {
-            return route('vendor.dashboard');
-        }
-        return route('dashboard');
-    }
-);
+            guests: fn () => route('login'),
+            users: function ($request) {
+                // Redirige vers le dashboard spécifique si c'est un restaurateur
+                if ($request->user() && $request->user()->role === 'restaurateur') {
+                    return route('vendor.dashboard');
+                }
+                return route('dashboard');
+            }
+        );
+
+        // 2. Définition des alias de Middleware
+        $middleware->alias([
+            'role' => \App\Http\Middleware\CheckRole::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
