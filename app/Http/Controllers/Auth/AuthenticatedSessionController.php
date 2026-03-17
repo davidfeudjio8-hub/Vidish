@@ -34,6 +34,7 @@ class AuthenticatedSessionController extends Controller
     }
     //redirect pour les clients et autres.
     return redirect()->intended(route('dashboard', absolute: false));
+    return redirect()->intended(route('video.feed'));
     }
 
     /**

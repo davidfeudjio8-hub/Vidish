@@ -29,6 +29,11 @@ Route::middleware('auth')->group(function () {
     // Inscription d'un nouveau restaurant
     Route::get('/restaurants/create', [RestaurantController::class, 'create'])->name('restaurants.create');
     Route::post('/restaurants', [RestaurantController::class, 'store'])->name('restaurants.store');
+    // routes/web.php
+
+Route::get('/feed', [VideoController::class, 'index'])
+    ->middleware(['auth']) 
+    ->name('video.feed');
 });
 
 // Groupe de routes STRICTEMENT réservé aux Restaurateurs
@@ -41,6 +46,7 @@ Route::middleware(['auth', 'verified', 'role:restaurateur'])->prefix('vendor')->
     // Gestion des plats (Ajout, Modification)
     Route::post('/dishes', [DishController::class, 'store'])->name('dishes.store');
     Route::resource('dishes', DishController::class)->except(['store']);
+    
 });
 
 require __DIR__.'/auth.php';

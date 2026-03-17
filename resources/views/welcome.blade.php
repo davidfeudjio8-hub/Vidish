@@ -133,9 +133,9 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.min.js"></script>
 </head>
 
-<body class="antialiased text-white font-sans" >
+<body class="antialiased text-white font-sans">
     <div x-data="{
-        open: {{ (request()->query('auth_trigger') === 'login' || $errors->any()) ? 'true' : 'false' }},
+        open: {{ request()->query('auth_trigger') === 'login' || $errors->any() ? 'true' : 'false' }},
         mode: '{{ $errors->has('name') || old('role') ? 'signup' : (request()->query('auth_trigger') === 'login' ? 'login' : 'login') }}',
         role: '{{ old('role', 'client') }}'
     }">
@@ -314,9 +314,9 @@
 
                                     <div class="mt-4">
                                         @auth
-                                            <a href="{{ route('dishes.show', $video->dish->id) }}"
-                                                class="w-full py-3 bg-white/10 backdrop-blur-md border border-white/10 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-coral hover:border-coral transition-all duration-300 text-center block text-white">
-                                                View Details
+                                            <a href="{{ route('video.feed') }}"
+                                                class="px-6 py-3 bg-orange-500 text-white font-bold rounded-full hover:bg-orange-600 transition">
+                                                Voir les détails
                                             </a>
                                         @endauth
 
@@ -602,7 +602,9 @@
         if (urlParams.has('auth_trigger')) {
             // This assumes your Alpine data variable for the overlay is 'showAuthModal'
             // or whatever function you use to open it.
-            window.dispatchEvent(new CustomEvent('open-auth-overlay', { detail: 'login' }));
+            window.dispatchEvent(new CustomEvent('open-auth-overlay', {
+                detail: 'login'
+            }));
         }
     });
 </script>
