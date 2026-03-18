@@ -6,6 +6,8 @@ use App\Http\Controllers\RestaurantController;
 use App\Http\Controllers\DishController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\VideoController;
+
 
 // Page d'accueil : Flux vidéo pour les visiteurs
 Route::get('/', function () {
@@ -31,9 +33,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/restaurants', [RestaurantController::class, 'store'])->name('restaurants.store');
     // routes/web.php
 
-Route::get('/feed', [VideoController::class, 'index'])
+    Route::get('/feed', [VideoController::class, 'index'])
     ->middleware(['auth']) 
     ->name('video.feed');
+
 });
 
 // Groupe de routes STRICTEMENT réservé aux Restaurateurs

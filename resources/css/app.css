@@ -1,3 +1,109 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    body {
+        /* Fond d'écran avec l'image de ton choix */
+        background-image: url('/images/bg-vendor-dark.jpg'); 
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        background-repeat: no-repeat;
+        background-color: #0A0A0A; /* Noir Concrete de secours */
+        @apply text-white antialiased overflow-x-hidden;
+    }
+
+    /* Grain de texture subtil pour le côté premium */
+    body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: url('https://grainy-gradients.vercel.app/noise.svg');
+        opacity: 0.05;
+        z-index: -1;
+        pointer-events: none;
+    }
+}
+
+@layer components {
+    /* Glassmorphism Noir Concrete (Cartes et Sidebar) */
+    .glass-card {
+        background: rgba(15, 15, 15, 0.65); 
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 24px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+        transition: all 0.3s ease;
+    }
+
+    /* Glassmorphism Teinté Coral (Éléments actifs/Badges) */
+    .glass-coral {
+        background: rgba(255, 111, 97, 0.12); 
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 111, 97, 0.25);
+        border-radius: 20px;
+    }
+
+    /* Sidebar spécifique */
+    .glass-sidebar {
+        background: rgba(10, 10, 10, 0.75);
+        backdrop-filter: blur(25px) saturate(200%);
+        -webkit-backdrop-filter: blur(25px) saturate(200%);
+        border-right: 1px solid rgba(255, 255, 255, 0.05);
+        box-shadow: 10px 0 50px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Bouton Signature Vidish Coral */
+    .btn-vidish {
+        background: linear-gradient(135deg, #FF7F50 0%, #FF6F61 100%);
+        @apply px-6 py-2 rounded-full font-semibold text-white shadow-lg;
+        box-shadow: 0 10px 20px -10px rgba(255, 111, 97, 0.5);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: inline-flex;
+        items-center: center;
+        justify-content: center;
+    }
+
+    .btn-vidish:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 25px -8px rgba(255, 111, 97, 0.6);
+        filter: brightness(1.1);
+    }
+
+    .btn-vidish:active {
+        transform: translateY(0);
+    }
+
+    /* Utilitaires de couleurs Corail personnalisés */
+    .bg-coral-500 {
+        background-color: #FF6F61;
+    }
+    
+    .text-coral-400 {
+        color: #FF8C78;
+    }
+
+    /* Glow (Lueur) Corail */
+    .shadow-coral-glow {
+        box-shadow: 0 0 20px rgba(255, 111, 97, 0.3);
+    }
+}
+@layer utilities {
+    .animate-in {
+        animation-fill-mode: forwards;
+        animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .fade-in { animation: fadeIn 0.8s ease-out; }
+    .slide-in-from-bottom-4 { animation: slideInBottom 0.6s ease-out; }
+    .slide-in-from-right-8 { animation: slideInRight 0.8s ease-out; }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideInBottom { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes slideInRight { from { transform: translateX(30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 111, 97, 0.3); border-radius: 10px; }
+}
