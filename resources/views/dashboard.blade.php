@@ -27,7 +27,7 @@
                         <p class="mt-4 text-gray-400">Welcome, Chef! Start by creating your restaurant profile so you
                             can upload dish videos.</p>
                         @if (auth()->user()->restaurant)
-                            <form action="{{ route('dishes.store') }}" method="POST" enctype="multipart/form-data"
+                            <form action="{{ route('vendor.dishes.store') }}" method="POST" enctype="multipart/form-data"
                                 class="mt-8 bg-gray-700 p-6 rounded-lg">
                                 @csrf
                                 <h4 class="text-white mb-4 font-bold">Upload a New Dish Video</h4>

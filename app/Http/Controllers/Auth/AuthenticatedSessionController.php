@@ -28,13 +28,15 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        //redirection conditionnelle en fonction du rôle de l'utilisateur
+        // 1. Redirection pour les Restaurateurs
         if ($request->user()->role === 'restaurateur') {
-        return redirect()->route('vendor.dashboard');
-    }
-    //redirect pour les clients et autres.
-    return redirect()->intended(route('dashboard', absolute: false));
-    return redirect()->intended(route('video.feed'));
+            return redirect()->intended(route('vendor.dashboard'));
+        }
+
+        // 2. Redirection pour les Clients (vers le flux vidéo par défaut)
+        // Note : .intended() renvoie l'utilisateur là où il voulait aller, 
+        // sinon il utilise la route par défaut spécifiée ici.
+        return redirect()->intended(route('video.feed'));
     }
 
     /**
