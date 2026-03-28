@@ -15,7 +15,7 @@
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 111, 97, 0.3); border-radius: 10px; }
     </style>
 </head>
-<body class="bg-[#0A0A0A] text-white antialiased font-sans overflow-hidden">
+<body class="bg-[#191919] text-white antialiased font-sans overflow-hidden">
 
     <div class="fixed inset-0 bg-cover bg-center z-[-2]" style="background-image: url('{{ asset('images/nature-background.jpg') }}');"></div>
     <div class="fixed inset-0 bg-black/60 backdrop-blur-[2px] z-[-1]"></div>

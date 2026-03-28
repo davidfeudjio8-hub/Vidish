@@ -15,6 +15,7 @@ return new class extends Migration {
             // Coordonnées pour la recherche de proximité
             $table->decimal('latitude', 10, 8)->nullable();
             $table->decimal('longitude', 11, 8)->nullable();
+            $table->boolean('has_delivery')->default(false);
             $table->string('image_path')->nullable();
             $table->boolean('is_open')->default(true);
             $table->timestamps();
