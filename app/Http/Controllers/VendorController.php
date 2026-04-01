@@ -7,104 +7,108 @@ use App\Models\Restaurant;
 use App\Models\Order; 
 use App\Models\Dish;  
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class VendorController extends Controller
 {
-    /**
-     * Affiche le Dashboard principal du vendeur.
-     */
     public function index()
     {
-        // 1. Récupérer le restaurant de l'utilisateur connecté
         $restaurant = Auth::user()->restaurant;
 
-        // 2. Sécurité : si l'utilisateur n'a pas encore de restaurant, on le redirige
         if (!$restaurant) {
             return redirect()->route('restaurants.create');
         }
 
-        // 3. Récupérer les commandes en cours (en attente ou en préparation)
         $orders = Order::where('restaurant_id', $restaurant->id)
             ->whereIn('status', ['pending', 'preparing'])
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // 4. Statistiques : Total des vues sur tous les plats du restaurant
-        // Assure-toi que la colonne 'views_count' existe dans ta table 'dishes'
         $totalViews = Dish::where('restaurant_id', $restaurant->id)->sum('views_count');
 
-        // 5. Récupérer les 5 derniers plats ajoutés pour l'affichage rapide
         $dishes = Dish::where('restaurant_id', $restaurant->id)
             ->latest()
             ->take(5)
             ->get();
 
-        // 6. Données pour le graphique (Ventes ou Vues)
+        $chartLabels = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
         $chartData = [12, 45, 30, 70, 100, 80, 45];
 
-        // 7. UN SEUL RETURN qui envoie TOUTES les variables nécessaires à la vue
         return view('vendor.dashboard', compact(
             'restaurant', 
             'orders', 
             'totalViews', 
             'dishes', 
+            'chartLabels',
             'chartData'
         ));
     }
 
-    /**
-     * Affiche la page des paramètres du restaurant.
-     */
+    public function managePlats()
+    {
+        $plats = Auth::user()->dishes()
+            ->withCount('orders')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('vendor.plats.index', compact('plats'));
+    }
+
+    public function manageClips()
+    {
+        $clips = Auth::user()->clips()
+            ->withCount(['views', 'likes'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('vendor.clips.index', compact('clips'));
+    }
+
     public function settings()
     {
         $restaurant = Auth::user()->restaurant;
-        
-        if (!$restaurant) {
-            return redirect()->route('restaurants.create');
-        }
-
+        if (!$restaurant) return redirect()->route('restaurants.create');
         return view('vendor.settings', compact('restaurant'));
     }
 
-    /**
-     * Met à jour le statut d'ouverture (Ouvert/Fermé) via AJAX.
-     */
     public function updateStatus(Request $request)
     {
-        $request->validate([
-            'is_open' => 'required|boolean'
-        ]);
-
+        $request->validate(['is_open' => 'required|boolean']);
         $restaurant = Auth::user()->restaurant;
 
         if ($restaurant) {
             $restaurant->update(['is_open' => $request->is_open]);
             return response()->json([
-                'status' => 'success',
-                'message' => 'Statut de l\'établissement mis à jour !',
+                'success' => true,
+                'message' => 'Statut mis à jour !',
                 'is_open' => $restaurant->is_open
             ]);
         }
-
-        return response()->json(['status' => 'error', 'message' => 'Restaurant non trouvé.'], 404);
+        return response()->json(['success' => false], 404);
     }
 
     public function updateSettings(Request $request)
-{
-    $restaurant = Auth::user()->restaurant; // Ou ta logique de récupération
+    {
+        $restaurant = Auth::user()->restaurant;
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'address' => 'required|string|max:500',
+            'description' => 'nullable|string',
+            'logo_path' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+        ]);
 
-    $validated = $request->validate([
-        'name' => 'required|string|max:255',
-        'address' => 'required|string|max:500',
-        'description' => 'nullable|string',
-        'has_delivery' => 'boolean',
-    ]);
+        $validated['has_delivery'] = $request->has('has_delivery');
 
-    // Petit hack pour le checkbox (car non envoyé si décoché)
-    $validated['has_delivery'] = $request->has('has_delivery');
+        if ($request->hasFile('logo_path')) {
+            if ($restaurant->image_path) {
+                Storage::disk('public')->delete($restaurant->image_path);
+            }
+            $validated['image_path'] = $request->file('logo_path')->store('logos', 'public');
+        }
 
-    $restaurant->update($validated);
+        unset($validated['logo_path']);
+        $restaurant->update($validated);
 
-    return redirect()->back()->with('success', 'Kitchen updated successfully!');
-}
+        return redirect()->back()->with('success', 'Kitchen updated successfully!');
+    }
 }

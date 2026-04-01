@@ -38,18 +38,21 @@ Route::middleware(['auth', 'verified', 'role:restaurateur'])
     ->name('vendor.')   
     ->group(function () {
         
-        // Dashboard : URL = /vendor/dashboard
+        // Main Dashboard
         Route::get('/dashboard', [VendorController::class, 'index'])->name('dashboard');
         
-        // Settings : URL = /vendor/settings
+        // Management Views
+        Route::get('/plats', [VendorController::class, 'managePlats'])->name('plats');
+        Route::get('/clips', [VendorController::class, 'manageClips'])->name('clips');
+
+        // Settings & Status
         Route::get('/settings', [VendorController::class, 'settings'])->name('settings');
         Route::put('/settings/update', [VendorController::class, 'updateSettings'])->name('settings.update');
-
-        // Statut : URL = /vendor/status-update (Corrigé ici)
         Route::post('/status-update', [VendorController::class, 'updateStatus'])->name('status.update');
 
-        // CRUD Plats : URL = /vendor/dishes
+        // CRUD Operations
         Route::resource('dishes', DishController::class);
-});
+        Route::post('/clips/store', [VideoController::class, 'store'])->name('clips.store');
+    });
 
 require __DIR__.'/auth.php';

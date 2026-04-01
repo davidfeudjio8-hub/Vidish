@@ -1,7 +1,8 @@
 <?php
 
 namespace App\Models;
-
+use App\Models\Dish;
+use App\Models\Clip;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -55,4 +56,7 @@ class User extends Authenticatable
     {
         return $this->role === 'restaurateur';
     }
+
+    public function dishes() { return $this->hasMany(Dish::class); }
+    public function clips() { return $this->hasMany(Clip::class); }
 }

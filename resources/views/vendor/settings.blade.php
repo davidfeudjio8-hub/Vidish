@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vidish | Vendor Settings</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -26,31 +27,28 @@
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
-        .light .glass-card {
-            background: rgba(255, 255, 255, 0.8);
-            border: 1px solid rgba(0, 0, 0, 0.05);
-        }
+        [x-cloak] { display: none !important; }
     </style>
 </head>
-<body class="bg-darkBg dark:bg-darkBg light:bg-slate-50 transition-colors duration-300">
+<body class="bg-darkBg dark:bg-darkBg transition-colors duration-300">
 
     <div class="min-h-screen flex flex-col items-center justify-center p-4 md:p-8">
         
         <div class="w-full max-w-2xl mb-8 flex justify-between items-end px-4">
             <div>
-                <h1 class="text-3xl font-black italic uppercase tracking-tighter text-white dark:text-white light:text-slate-900">
+                <h1 class="text-3xl font-black italic uppercase tracking-tighter text-white">
                     VIDISH<span class="text-coral">.</span>
                 </h1>
                 <p class="text-[10px] font-bold text-gray-500 uppercase tracking-[0.3em]">Merchant Settings</p>
             </div>
-            <button onclick="document.documentElement.classList.toggle('dark')" class="p-3 rounded-2xl bg-white/5 hover:bg-coral/20 transition-all border border-white/5">
-                <svg class="w-5 h-5 text-coral" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <button onclick="document.documentElement.classList.toggle('dark')" class="p-3 rounded-2xl bg-white/5 hover:bg-coral/20 transition-all border border-white/5 text-coral">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                 </svg>
             </button>
         </div>
 
-        <div class="w-full max-w-2xl glass-card rounded-[40px] shadow-2xl overflow-hidden relative">
+        <div class="w-full max-w-2xl glass-card rounded-[40px] shadow-2xl overflow-hidden relative" x-data="{ photoPreview: null }">
             
             <a href="{{ route('vendor.dashboard') }}" 
                class="absolute top-8 right-8 p-2.5 rounded-full bg-white/5 hover:bg-red-500/20 text-gray-500 hover:text-red-500 transition-all duration-300 group z-20">
@@ -60,14 +58,40 @@
             </a>
             
             <div class="p-8 md:p-12 border-b border-white/5">
-                <h2 class="text-2xl font-black italic uppercase tracking-tight text-white dark:text-white light:text-slate-900 pr-12">
+                <h2 class="text-2xl font-black italic uppercase tracking-tight text-white pr-12">
                     Edit your <span class="text-coral">Kitchen</span>
                 </h2>
             </div>
 
-            <form action="{{ route('vendor.settings.update') }}" method="POST" class="p-8 md:p-12 space-y-8">
+            <form action="{{ route('vendor.settings.update') }}" method="POST" enctype="multipart/form-data" class="p-8 md:p-12 space-y-8">
                 @csrf
                 @method('PUT')
+
+                <div class="flex flex-col items-center space-y-4 pb-4">
+                    <div class="relative group">
+                        <div class="w-32 h-32 rounded-[32px] overflow-hidden border-2 border-white/10 group-hover:border-coral transition-all duration-300 shadow-2xl bg-white/5">
+                            <template x-if="!photoPreview">
+                                <img src="{{ $restaurant->image_path ? asset('storage/' . $restaurant->image_path) : asset('images/default-restaurant.jpg') }}"
+                                     class="w-full h-full object-cover">
+                            </template>
+                            <template x-if="photoPreview">
+                                <img :src="photoPreview" class="w-full h-full object-cover">
+                            </template>
+                        </div>
+                        
+                        <label for="logo_path" class="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer rounded-[32px]">
+                            <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                        </label>
+                    </div>
+                    
+                    <input type="file" name="logo_path" id="logo_path" class="hidden" accept="image/*"
+                           @change="const file = $event.target.files[0]; if (file) { const reader = new FileReader(); reader.onload = (e) => { photoPreview = e.target.result }; reader.readAsDataURL(file); }">
+                    
+                    <p class="text-[10px] text-gray-500 uppercase font-black tracking-widest">Logo du Restaurant</p>
+                </div>
 
                 <div class="space-y-3">
                     <label class="text-[10px] text-gray-500 uppercase tracking-[0.2em] font-black ml-2">Restaurant Name</label>
@@ -102,6 +126,7 @@
                     Save Changes
                 </button>
             </form>
+            
         </div>
 
         <p class="mt-10 text-[9px] text-gray-600 uppercase tracking-[0.5em] font-bold">Vidish Engineering &copy; 2026</p>
