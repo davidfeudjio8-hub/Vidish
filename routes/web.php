@@ -8,54 +8,47 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VideoController;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-*/
-
-// Page d'accueil : Flux vidéo public
+// --- ACCUEIL ---
 Route::get('/', function () {
     $videos = Video::with('dish.restaurant')->latest()->get();
     return view('welcome', compact('videos'));
 })->name('home');
 
-// ROUTES AUTHENTIFIÉES (Clients & Futurs Restaurateurs)
+// --- ROUTES AUTHENTIFIÉES ---
 Route::middleware('auth')->group(function () {
     
-    // Dashboard client par défaut
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
 
-    // Gestion du Profil
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Flux Vidéo principal
     Route::get('/feed', [VideoController::class, 'index'])->name('video.feed');
 
-    // CRÉATION DE RESTAURANT (C'est ici que se règle ton erreur)
-    // Ces routes permettent à un utilisateur de s'enregistrer comme vendeur
+    // Inscription Restaurant
     Route::get('/restaurants/create', [RestaurantController::class, 'create'])->name('restaurants.create');
     Route::post('/restaurants', [RestaurantController::class, 'store'])->name('restaurants.store');
 });
 
-// GROUPE RÉSERVÉ AUX RESTAURATEURS (VENDORS)
+// --- GROUPE VENDOR (Restaurateurs) ---
 Route::middleware(['auth', 'verified', 'role:restaurateur'])
-    ->prefix('vendor')
-    ->name('vendor.') 
+    ->prefix('vendor') 
+    ->name('vendor.')   
     ->group(function () {
         
-        // Dashboard principal du vendeur
+        // Dashboard : URL = /vendor/dashboard
         Route::get('/dashboard', [VendorController::class, 'index'])->name('dashboard');
         
-        // Paramètres et Statut (Toggle AJAX)
+        // Settings : URL = /vendor/settings
         Route::get('/settings', [VendorController::class, 'settings'])->name('settings');
-        Route::post('/status/update', [VendorController::class, 'updateStatus'])->name('status.update');
+        Route::put('/settings/update', [VendorController::class, 'updateSettings'])->name('settings.update');
 
-        // Gestion complète des Plats (CRUD)
+        // Statut : URL = /vendor/status-update (Corrigé ici)
+        Route::post('/status-update', [VendorController::class, 'updateStatus'])->name('status.update');
+
+        // CRUD Plats : URL = /vendor/dishes
         Route::resource('dishes', DishController::class);
 });
 

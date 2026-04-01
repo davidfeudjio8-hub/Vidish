@@ -88,4 +88,23 @@ class VendorController extends Controller
 
         return response()->json(['status' => 'error', 'message' => 'Restaurant non trouvé.'], 404);
     }
+
+    public function updateSettings(Request $request)
+{
+    $restaurant = Auth::user()->restaurant; // Ou ta logique de récupération
+
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'address' => 'required|string|max:500',
+        'description' => 'nullable|string',
+        'has_delivery' => 'boolean',
+    ]);
+
+    // Petit hack pour le checkbox (car non envoyé si décoché)
+    $validated['has_delivery'] = $request->has('has_delivery');
+
+    $restaurant->update($validated);
+
+    return redirect()->back()->with('success', 'Kitchen updated successfully!');
+}
 }
