@@ -44,7 +44,8 @@ Route::middleware(['auth', 'verified', 'role:restaurateur'])
         
         // Gestion des Plats
         Route::get('/plats', [VendorController::class, 'managePlats'])->name('plats');
-        Route::resource('dishes', DishController::class); // CRUD complet pour les plats
+        // Remplace ta ligne Route::resource par celle-ci :
+        Route::resource('dishes', DishController::class)->except(['edit', 'show', 'create']);
 
         // --- GESTION DES CLIPS (Vidéos) ---
         // On utilise VideoController pour centraliser la logique des vidéos

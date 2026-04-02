@@ -26,7 +26,28 @@
         [x-cloak] { display: none !important; }
     </style>
 </head>
-<body class="bg-darkBg text-white antialiased flex min-h-screen" x-data="{ openAddClip: false }">
+<body class="bg-darkBg text-white antialiased flex min-h-screen" x-data="{ 
+    showOverlay: false, 
+    editMode: false,
+    actionUrl: '',
+    formData: { id: '', dish_id: '', description: '' },
+    openAdd() {
+        this.editMode = false;
+        this.formData = { id: '', dish_id: '', description: '' };
+        this.actionUrl = '{{ route('vendor.clips.store') }}';
+        this.showOverlay = true;
+    },
+    openEdit(clip) {
+        this.editMode = true;
+        this.formData = { 
+            id: clip.id, 
+            dish_id: clip.dish_id || '', 
+            description: clip.description 
+        };
+        this.actionUrl = '/vendor/clips/' + clip.id;
+        this.showOverlay = true;
+    }
+}">
 
     <aside class="w-64 border-r border-white/5 flex flex-col fixed h-full bg-darkBg z-50">
         <div class="p-8">
@@ -78,7 +99,7 @@
                     </p>
                 </div>
                 
-                <button @click="openAddClip = true" 
+                <button @click="openAdd()" 
                    class="bg-white/5 border border-white/10 px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-coral hover:border-coral transition-all shadow-xl shadow-black/20">
                     + Nouveau Clip
                 </button>
@@ -113,12 +134,24 @@
                                 {{ $clip->description }}
                             </p>
                         </div>
-                        <form action="{{ route('vendor.clips.destroy', $clip->id) }}" method="POST" class="ml-2">
-                            @csrf @method('DELETE')
-                            <button type="submit" class="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 text-gray-400 hover:bg-red-500 hover:text-white transition-all shadow-lg">
-                                <i class="fa-solid fa-trash-can text-xs"></i>
+                        
+                        <div class="flex flex-col space-y-2 ml-2">
+                            <button type="button" @click="openEdit({ 
+                                id: {{ $clip->id }}, 
+                                dish_id: '{{ $clip->dish_id }}', 
+                                description: '{{ addslashes($clip->description) }}' 
+                            })" 
+                                class="w-8 h-8 flex items-center justify-center rounded-lg bg-white/5 text-gray-400 hover:bg-coral hover:text-white transition-all">
+                                <i class="fa-solid fa-pen text-[10px]"></i>
                             </button>
-                        </form>
+
+                            <form action="{{ route('vendor.clips.destroy', $clip->id) }}" method="POST" onsubmit="return confirm('Supprimer ce clip ?')">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="w-8 h-8 flex items-center justify-center rounded-lg bg-white/5 text-gray-400 hover:bg-red-500 hover:text-white transition-all">
+                                    <i class="fa-solid fa-trash-can text-[10px]"></i>
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
                 @empty
@@ -130,27 +163,27 @@
         </div>
     </main>
 
-    <div x-show="openAddClip" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-darkBg/95 backdrop-blur-xl" x-transition.opacity>
-        <div @click.away="openAddClip = false" class="w-full max-w-2xl bg-[#16191e] border border-white/10 rounded-[3rem] p-10 shadow-2xl relative overflow-hidden">
+    <div x-show="showOverlay" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-darkBg/95 backdrop-blur-xl" x-transition.opacity>
+        <div @click.away="showOverlay = false" class="w-full max-w-2xl bg-[#16191e] border border-white/10 rounded-[3rem] p-10 shadow-2xl relative overflow-hidden">
             
             <div class="flex justify-between items-center mb-8">
-                <h2 class="text-3xl font-black italic uppercase tracking-tighter">Nouveau <span class="text-coral">Clip</span></h2>
-                <button @click="openAddClip = false" class="text-gray-500 hover:text-white transition-colors text-2xl">✕</button>
+                <h2 class="text-3xl font-black italic uppercase tracking-tighter">
+                    <span x-text="editMode ? 'Modifier' : 'Nouveau'"></span> <span class="text-coral">Clip</span>
+                </h2>
+                <button @click="showOverlay = false" class="text-gray-500 hover:text-white transition-colors text-2xl">✕</button>
             </div>
 
-            @if ($errors->any())
-                <div class="bg-red-500/20 text-red-500 p-4 rounded-xl mb-4 text-[10px] font-black uppercase tracking-widest">
-                    <ul> @foreach ($errors->all() as $error) <li>{{ $error }}</li> @endforeach </ul>
-                </div>
-            @endif
-
-            <form action="{{ route('vendor.clips.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+            <form :action="actionUrl" method="POST" enctype="multipart/form-data" class="space-y-6">
                 @csrf
+                <template x-if="editMode">
+                    <input type="hidden" name="_method" value="PUT">
+                </template>
+
                 <div class="grid grid-cols-2 gap-6">
                     <div class="col-span-2">
                         <label class="text-[10px] text-gray-500 uppercase font-black tracking-widest ml-4 mb-2 block">Associer à un Plat</label>
                         <div class="relative">
-                            <select name="dish_id" class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-coral transition-all font-bold appearance-none text-white text-sm">
+                            <select name="dish_id" x-model="formData.dish_id" class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-coral transition-all font-bold appearance-none text-white text-sm">
                                 <option value="" class="bg-darkBg text-white">Clip Général (Restaurant)</option>
                                 @foreach (Auth::user()->restaurant->dishes ?? [] as $dish)
                                     <option value="{{ $dish->id }}" class="bg-darkBg text-white">{{ $dish->name }}</option>
@@ -161,18 +194,20 @@
                     </div>
 
                     <div class="col-span-2">
-                        <label class="text-[10px] text-gray-500 uppercase font-black tracking-widest ml-4 mb-2 block">Fichier Vidéo (MP4, MOV)</label>
-                        <input type="file" name="video" required accept="video/*" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-coral/20 file:text-white file:font-black">
+                        <label class="text-[10px] text-gray-500 uppercase font-black tracking-widest ml-4 mb-2 block">
+                            Fichier Vidéo <span x-show="editMode" class="italic text-gray-600">(Optionnel si modification)</span>
+                        </label>
+                        <input type="file" name="video" :required="!editMode" accept="video/*" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-coral/20 file:text-white file:font-black">
                     </div>
 
                     <div class="col-span-2">
                         <label class="text-[10px] text-gray-500 uppercase font-black tracking-widest ml-4 mb-2 block">Description / Légende</label>
-                        <textarea name="description" rows="3" required placeholder="Légende de votre clip..." class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-coral transition-all font-bold text-sm text-white"></textarea>
+                        <textarea name="description" x-model="formData.description" rows="3" required placeholder="Légende de votre clip..." class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-coral transition-all font-bold text-sm text-white"></textarea>
                     </div>
                 </div>
 
                 <button type="submit" class="w-full bg-coral py-5 rounded-[2rem] font-black uppercase tracking-widest text-[11px] shadow-2xl hover:scale-[1.02] transition-transform">
-                    Publier le Clip
+                    <span x-text="editMode ? 'Mettre à jour le Clip' : 'Publier le Clip'"></span>
                 </button>
             </form>
         </div>
