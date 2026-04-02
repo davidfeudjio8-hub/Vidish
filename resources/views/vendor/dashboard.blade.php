@@ -99,7 +99,7 @@
                 </a>
 
                 {{-- Option : Mes Plats (Fixed Link & Syntax) --}}
-                <a href="{{ route('vendor.clips') }}"
+                <a href="{{ route('vendor.plats') }}"
                     class="group flex items-center h-12 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all px-3">
                     <div class="w-10 flex justify-center items-center shrink-0"><i
                             class="fas fa-utensils text-xl group-hover:text-coral-400 transition-colors"></i></div>

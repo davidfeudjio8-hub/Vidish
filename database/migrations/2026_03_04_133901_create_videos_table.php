@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('videos', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('dish_id')->constrained()->onDelete('cascade');
+            $table->foreignId('dish_id')->nullable()->constrained()->onDelete('cascade');
             $table->string('video_path'); // Path to the file on your SSD
             $table->string('thumbnail_path')->nullable();
             $table->timestamps();

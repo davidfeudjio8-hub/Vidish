@@ -8,13 +8,13 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VideoController;
 use Illuminate\Support\Facades\Route;
 
-// --- ACCUEIL ---
+// --- ACCUEIL (Public) ---
 Route::get('/', function () {
     $videos = Video::with('dish.restaurant')->latest()->get();
     return view('welcome', compact('videos'));
 })->name('home');
 
-// --- ROUTES AUTHENTIFIÉES ---
+// --- ROUTES AUTHENTIFIÉES (User standard) ---
 Route::middleware('auth')->group(function () {
     
     Route::get('/dashboard', function () {
@@ -25,6 +25,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    // Le Feed vertical pour les clients
     Route::get('/feed', [VideoController::class, 'index'])->name('video.feed');
 
     // Inscription Restaurant
@@ -32,27 +33,29 @@ Route::middleware('auth')->group(function () {
     Route::post('/restaurants', [RestaurantController::class, 'store'])->name('restaurants.store');
 });
 
-// --- GROUPE VENDOR (Restaurateurs) ---
+// --- GROUPE VENDOR (Espace Restaurateur) ---
 Route::middleware(['auth', 'verified', 'role:restaurateur'])
     ->prefix('vendor') 
     ->name('vendor.')   
     ->group(function () {
         
-        // Main Dashboard
+        // Dashboard Principal
         Route::get('/dashboard', [VendorController::class, 'index'])->name('dashboard');
         
-        // Management Views
+        // Gestion des Plats
         Route::get('/plats', [VendorController::class, 'managePlats'])->name('plats');
-        Route::get('/clips', [VendorController::class, 'manageClips'])->name('clips');
+        Route::resource('dishes', DishController::class); // CRUD complet pour les plats
 
-        // Settings & Status
+        // --- GESTION DES CLIPS (Vidéos) ---
+        // On utilise VideoController pour centraliser la logique des vidéos
+        Route::get('/clips', [VideoController::class, 'vendorIndex'])->name('clips'); 
+        Route::post('/clips/store', [VideoController::class, 'store'])->name('clips.store');
+        Route::delete('/clips/{id}', [VideoController::class, 'destroy'])->name('clips.destroy');
+
+        // Paramètres & Statut du restaurant
         Route::get('/settings', [VendorController::class, 'settings'])->name('settings');
         Route::put('/settings/update', [VendorController::class, 'updateSettings'])->name('settings.update');
         Route::post('/status-update', [VendorController::class, 'updateStatus'])->name('status.update');
-
-        // CRUD Operations
-        Route::resource('dishes', DishController::class);
-        Route::post('/clips/store', [VideoController::class, 'store'])->name('clips.store');
     });
 
 require __DIR__.'/auth.php';

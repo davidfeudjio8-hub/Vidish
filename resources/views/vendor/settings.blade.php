@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vidish | Vendor Settings</title>
+    <title>Vidish | Paramètres du Restaurant</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script>
@@ -34,12 +34,31 @@
 
     <div class="min-h-screen flex flex-col items-center justify-center p-4 md:p-8">
         
+        @if(session('success'))
+        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)" 
+             x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 -translate-y-4"
+             x-transition:leave="transition ease-in duration-300" x-transition:leave-end="opacity-0 -translate-y-4"
+             class="fixed top-8 z-50 w-full max-w-md px-4">
+            <div class="bg-emerald-500/10 border border-emerald-500/20 backdrop-blur-xl p-4 rounded-2xl flex items-center justify-between shadow-2xl">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-emerald-500 p-1.5 rounded-full text-white">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                    </div>
+                    <p class="text-sm font-bold text-emerald-500 uppercase tracking-widest">Modifications enregistrées avec succès</p>
+                </div>
+                <button @click="show = false" class="text-emerald-500/50 hover:text-emerald-500 transition-colors">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+        </div>
+        @endif
+
         <div class="w-full max-w-2xl mb-8 flex justify-between items-end px-4">
             <div>
                 <h1 class="text-3xl font-black italic uppercase tracking-tighter text-white">
                     VIDISH<span class="text-coral">.</span>
                 </h1>
-                <p class="text-[10px] font-bold text-gray-500 uppercase tracking-[0.3em]">Merchant Settings</p>
+                <p class="text-[10px] font-bold text-gray-500 uppercase tracking-[0.3em]">Paramètres Marchand</p>
             </div>
             <button onclick="document.documentElement.classList.toggle('dark')" class="p-3 rounded-2xl bg-white/5 hover:bg-coral/20 transition-all border border-white/5 text-coral">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -59,7 +78,7 @@
             
             <div class="p-8 md:p-12 border-b border-white/5">
                 <h2 class="text-2xl font-black italic uppercase tracking-tight text-white pr-12">
-                    Edit your <span class="text-coral">Kitchen</span>
+                    Éditer votre <span class="text-coral">Cuisine</span>
                 </h2>
             </div>
 
@@ -94,27 +113,29 @@
                 </div>
 
                 <div class="space-y-3">
-                    <label class="text-[10px] text-gray-500 uppercase tracking-[0.2em] font-black ml-2">Restaurant Name</label>
-                    <input type="text" name="name" value="{{ old('name', $restaurant->name) }}" required
+                    <label class="text-[10px] text-gray-500 uppercase tracking-[0.2em] font-black ml-2">Nom du Restaurant</label>
+                    <input type="text" name="name" value="{{ old('name', $restaurant->name) }}" 
+                           placeholder="Ex: Le Gourmet de Yaoundé" required
                            class="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white outline-none focus:border-coral transition-all">
                 </div>
 
                 <div class="space-y-3">
-                    <label class="text-[10px] text-gray-500 uppercase tracking-[0.2em] font-black ml-2">Physical Address</label>
-                    <input type="text" name="address" value="{{ old('address', $restaurant->address) }}" required
+                    <label class="text-[10px] text-gray-500 uppercase tracking-[0.2em] font-black ml-2">Adresse Physique</label>
+                    <input type="text" name="address" value="{{ old('address', $restaurant->address) }}" 
+                           placeholder="Ex: Rue 1234, Bastos, Yaoundé" required
                            class="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white outline-none focus:border-coral transition-all">
                 </div>
 
                 <div class="space-y-3">
-                    <label class="text-[10px] text-gray-500 uppercase tracking-[0.2em] font-black ml-2">Description</label>
-                    <textarea name="description" rows="4" 
+                    <label class="text-[10px] text-gray-500 uppercase tracking-[0.2em] font-black ml-2">Description de votre établissement</label>
+                    <textarea name="description" rows="4" placeholder="Décrivez vos spécialités, votre ambiance..."
                               class="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-white outline-none focus:border-coral transition-all resize-none">{{ old('description', $restaurant->description) }}</textarea>
                 </div>
 
                 <div class="flex items-center justify-between p-6 bg-white/[0.02] rounded-3xl border border-white/5">
                     <div>
-                        <span class="block text-xs font-black uppercase tracking-widest text-white">Delivery Ready</span>
-                        <span class="text-[10px] text-gray-500 uppercase">Available for orders</span>
+                        <span class="block text-xs font-black uppercase tracking-widest text-white">Livraison Disponible</span>
+                        <span class="text-[10px] text-gray-500 uppercase">Prêt pour les commandes à domicile</span>
                     </div>
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" name="has_delivery" value="1" class="sr-only peer" {{ $restaurant->has_delivery ? 'checked' : '' }}>
@@ -123,7 +144,7 @@
                 </div>
 
                 <button type="submit" class="w-full py-5 bg-coral text-white font-black uppercase tracking-[0.3em] text-xs rounded-2xl shadow-lg hover:scale-[1.02] active:scale-95 transition-all">
-                    Save Changes
+                    Enregistrer les Modifications
                 </button>
             </form>
             

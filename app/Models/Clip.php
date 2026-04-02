@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\View;
+use App\Models\Like;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

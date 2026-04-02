@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Dish extends Model
 {
-    protected $fillable = ['restaurant_id', 'name', 'description', 'price', 'image_path', 'views_count'];
+    protected $fillable = ['restaurant_id','user_id', 'name', 'description', 'price', 'image_path', 'views_count'];
 
     public function videos()
 {
@@ -25,4 +25,7 @@ public function restaurant()
     public function scopePopular($query) {
         return $query->orderBy('views_count', 'desc');
     }
+    public function orders() {
+    return $this->hasMany(Order::class); // Assure-toi d'avoir un modèle Order plus tard
+}
 }

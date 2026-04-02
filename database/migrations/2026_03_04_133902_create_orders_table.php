@@ -13,6 +13,7 @@ return new class extends Migration
 {
     Schema::create('orders', function (Blueprint $table) {
         $table->id();
+        $table->foreignId('dish_id')->constrained()->onDelete('cascade');
         $table->foreignId('restaurant_id')->constrained()->onDelete('cascade');
         $table->string('customer_name');
         $table->json('items'); // On stocke les plats sous forme de JSON

@@ -394,118 +394,130 @@
     </main>
 
     <div x-show="openAuth" x-cloak
-        class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/95 backdrop-blur-[30px]"
-        x-transition.opacity>
-        <div class="absolute inset-0" @click="openAuth = false"></div>
-        <div
-            class="w-full max-w-md p-6 sm:p-10 glass-section rounded-[35px] sm:rounded-[50px] relative z-[110] border-white/20 max-h-[90vh] overflow-y-auto">
+    class="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/95 backdrop-blur-[30px]"
+    x-transition.opacity>
+    <div class="absolute inset-0" @click="openAuth = false"></div>
+    <div
+        class="w-full max-w-md p-6 sm:p-10 glass-section rounded-[35px] sm:rounded-[50px] relative z-[110] border-white/20 max-h-[90vh] overflow-y-auto">
 
-            <button @click="openAuth = false"
-                class="absolute top-6 right-6 sm:top-8 sm:right-8 text-gray-500 hover:text-white transition-colors">✕</button>
+        <button @click="openAuth = false"
+            class="absolute top-6 right-6 sm:top-8 sm:right-8 text-gray-500 hover:text-white transition-colors">✕</button>
 
-            <div class="text-center mb-6">
-                <h2 class="text-2xl sm:text-3xl font-black text-[#FF5A5F] italic mb-4 sm:mb-6"
-                    x-text="authMode === 'login' ? 'Welcome Back' : 'Join Vidish'"></h2>
+        <div class="text-center mb-6">
+            <h2 class="text-2xl sm:text-3xl font-black text-[#FF5A5F] italic mb-4 sm:mb-6"
+                x-text="authMode === 'login' ? 'Welcome Back' : 'Join Vidish'"></h2>
 
-                <template x-if="authMode === 'signup'">
-                    <div
-                        class="flex p-1 bg-white/5 rounded-2xl border border-white/10 mb-6 sm:mb-8 max-w-[280px] mx-auto">
-                        <button @click="authRole = 'client'"
-                            :class="authRole === 'client' ? 'bg-coral text-white shadow-lg' : 'text-gray-400'"
-                            class="flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all duration-300">Diner</button>
-                        <button @click="authRole = 'restaurateur'"
-                            :class="authRole === 'restaurateur' ? 'bg-coral text-white shadow-lg' : 'text-gray-400'"
-                            class="flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all duration-300">Restaurant</button>
-                    </div>
-                </template>
+            @if ($errors->any() && !($errors->has('name') || $errors->has('email') || $errors->has('password')))
+                <div class="mb-6 p-3 bg-red-500/10 border border-red-500/20 rounded-2xl">
+                    <p class="text-[10px] font-bold text-red-500 uppercase tracking-widest leading-relaxed">
+                        {{ $errors->first() }}
+                    </p>
+                </div>
+            @endif
+
+            <template x-if="authMode === 'signup'">
+                <div
+                    class="flex p-1 bg-white/5 rounded-2xl border border-white/10 mb-6 sm:mb-8 max-w-[280px] mx-auto gap-1">
+                    <button type="button" @click="authRole = 'client'"
+                        :class="authRole === 'client' 
+                            ? 'bg-green-500 text-white shadow-[0_0_20px_rgba(34,197,94,0.4)] border-green-400/50' 
+                            : 'text-gray-400 border-[#FF5A5F]/30 shadow-[0_0_15px_rgba(255,90,95,0.2)] hover:border-[#FF5A5F]/60'"
+                        class="flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all duration-500 border">
+                        Diner
+                    </button>
+                    <button type="button" @click="authRole = 'restaurateur'"
+                        :class="authRole === 'restaurateur' 
+                            ? 'bg-green-500 text-white shadow-[0_0_20px_rgba(34,197,94,0.4)] border-green-400/50' 
+                            : 'text-gray-400 border-[#FF5A5F]/30 shadow-[0_0_15px_rgba(255,90,95,0.2)] hover:border-[#FF5A5F]/60'"
+                        class="flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all duration-500 border">
+                        Restaurant
+                    </button>
+                </div>
+            </template>
+        </div>
+
+        <form :action="authMode === 'login' ? '{{ route('login') }}' : '{{ route('register') }}'"
+            method="POST" class="space-y-4">
+            @csrf
+            <template x-if="authMode === 'signup'"><input type="hidden" name="role"
+                    :value="authRole"></template>
+            
+            <template x-if="authMode === 'signup'">
+                <div>
+                    <label class="text-[10px] text-gray-500 uppercase tracking-widest ml-4 mb-2 block">Name</label>
+                    <input type="text" name="name" value="{{ old('name') }}"
+                        :placeholder="authRole === 'restaurateur' ? 'Restaurant Name' : 'Your Full Name'"
+                        class="w-full px-5 py-3 sm:px-6 sm:py-4 bg-white/5 border border-white/10 rounded-2xl text-white outline-none transition-all placeholder:text-gray-700 @error('name') border-red-500/50 @enderror">
+                    @error('name')
+                        <span class="text-[9px] text-red-500 font-bold uppercase tracking-tighter ml-4 mt-1 block italic">{{ $message }}</span>
+                    @enderror
+                </div>
+            </template>
+
+            <div>
+                <label class="text-[10px] text-gray-500 uppercase tracking-widest ml-4 mb-2 block">Email Address</label>
+                <input type="email" name="email" value="{{ old('email') }}"
+                    :placeholder="authRole === 'restaurateur' ? 'business@restaurant.com' : 'hello@example.com'"
+                    class="w-full px-5 py-3 sm:px-6 sm:py-4 bg-white/5 border border-white/10 rounded-2xl text-white outline-none transition-all placeholder:text-gray-700 @error('email') border-red-500/50 @enderror">
+                @error('email')
+                    <span class="text-[9px] text-red-500 font-bold uppercase tracking-tighter ml-4 mt-1 block italic">{{ $message }}</span>
+                @enderror
             </div>
 
-            <form :action="authMode === 'login' ? '{{ route('login') }}' : '{{ route('register') }}'"
-                method="POST" class="space-y-4">
-                @csrf
-                <template x-if="authMode === 'signup'"><input type="hidden" name="role"
-                        :value="authRole"></template>
-                <template x-if="authMode === 'signup'">
-                    <div>
-                        <label class="text-[10px] text-gray-500 uppercase tracking-widest ml-4 mb-2 block">Name</label>
-                        <input type="text" name="name"
-                            :placeholder="authRole === 'restaurateur' ? 'Restaurant Name' : 'Your Full Name'"
-                            class="w-full px-5 py-3 sm:px-6 sm:py-4 bg-white/5 border border-white/10 rounded-2xl text-white outline-none transition-all placeholder:text-gray-700">
-                    </div>
-                </template>
-                <div>
-                    <label class="text-[10px] text-gray-500 uppercase tracking-widest ml-4 mb-2 block">Email
-                        Address</label>
-                    <input type="email" name="email"
-                        :placeholder="authRole === 'restaurateur' ? 'business@restaurant.com' : 'hello@example.com'"
-                        class="w-full px-5 py-3 sm:px-6 sm:py-4 bg-white/5 border border-white/10 rounded-2xl text-white outline-none transition-all placeholder:text-gray-700">
-                </div>
-                <div>
-                    <label class="text-[10px] text-gray-500 uppercase tracking-widest ml-4 mb-2 block">Security</label>
-                    <input type="password" name="password" placeholder="••••••••" required
+            <div>
+                <label class="text-[10px] text-gray-500 uppercase tracking-widest ml-4 mb-2 block">Security</label>
+                <input type="password" name="password" placeholder="••••••••" required
+                    class="w-full px-5 py-3 sm:px-6 sm:py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:border-[#FF5A5F] outline-none transition-all placeholder:text-gray-600 text-sm @error('password') border-red-500/50 @enderror">
+                @error('password')
+                    <span class="text-[9px] text-red-500 font-bold uppercase tracking-tighter ml-4 mt-1 block italic">{{ $message }}</span>
+                @enderror
+            </div>
+
+            <template x-if="authMode === 'signup'">
+                <div class="mt-4">
+                    <label class="text-[10px] text-gray-500 uppercase tracking-widest ml-4 mb-2 block">Confirm Security</label>
+                    <input type="password" name="password_confirmation" placeholder="Repeat Security Key"
+                        required
                         class="w-full px-5 py-3 sm:px-6 sm:py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:border-[#FF5A5F] outline-none transition-all placeholder:text-gray-600 text-sm">
                 </div>
-                <template x-if="authMode === 'signup'">
-                    <div class="mt-4">
-                        <label class="text-[10px] text-gray-500 uppercase tracking-widest ml-4 mb-2 block">Confirm
-                            Security</label>
-                        <input type="password" name="password_confirmation" placeholder="Repeat Security Key"
-                            required
-                            class="w-full px-5 py-3 sm:px-6 sm:py-4 bg-white/5 border border-white/10 rounded-2xl text-white focus:border-[#FF5A5F] outline-none transition-all placeholder:text-gray-600 text-sm">
+            </template>
+
+            <div class="flex items-center justify-between px-4 mt-4 mb-2">
+                <label class="flex items-center cursor-pointer group">
+                    <div class="relative">
+                        <input type="checkbox" name="remember" class="sr-only peer" {{ old('remember') ? 'checked' : '' }}>
+                        <div
+                            class="w-5 h-5 border-2 border-white/10 rounded-md bg-white/5 peer-checked:bg-coral peer-checked:border-coral transition-all duration-300">
+                        </div>
+                        <svg class="absolute top-1 left-1 w-3 h-3 text-white opacity-0 peer-checked:opacity-100 transition-opacity duration-300"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4"
+                                d="M5 13l4 4L19 7" />
+                        </svg>
                     </div>
-                </template>
-                <div class="flex items-center px-4 mt-4 mb-2">
-                    <label class="flex items-center cursor-pointer group">
-                        <div class="relative">
-                            <input type="checkbox" name="remember" class="sr-only peer" checked>
-                            <div
-                                class="w-5 h-5 border-2 border-white/10 rounded-md bg-white/5 peer-checked:bg-coral peer-checked:border-coral transition-all duration-300">
-                            </div>
-                            <svg class="absolute top-1 left-1 w-3 h-3 text-white opacity-0 peer-checked:opacity-100 transition-opacity duration-300"
-                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4"
-                                    d="M5 13l4 4L19 7" />
-                            </svg>
-                        </div>
-                        <span
-                            class="ml-3 text-[10px] font-bold text-gray-500 uppercase tracking-widest group-hover:text-gray-300 transition-colors">Remember
-                            my session</span>
-                    </label>
-                </div>
-                <div class="flex items-center justify-between px-4 mb-4">
-                    <label class="flex items-center cursor-pointer group">
-                        <div class="relative">
-                            <input type="checkbox" name="remember" class="sr-only peer">
-                            <div
-                                class="w-5 h-5 border-2 border-white/10 rounded-md bg-white/5 peer-checked:bg-coral peer-checked:border-coral transition-all duration-300">
-                            </div>
-                            <svg class="absolute top-1 left-1 w-3 h-3 text-white opacity-0 peer-checked:opacity-100 transition-opacity duration-300"
-                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="4"
-                                    d="M5 13l4 4L19 7" />
-                            </svg>
-                        </div>
-                        <span
-                            class="ml-3 text-[10px] font-bold text-gray-500 uppercase tracking-widest group-hover:text-gray-300 transition-colors">Keep
-                            me logged in</span>
-                    </label>
-                    <a href="#"
-                        class="text-[9px] font-bold text-coral/60 hover:text-coral uppercase tracking-widest transition-colors">Forgot?</a>
-                </div>
-                <button type="submit"
-                    class="btn-coral w-full py-4 sm:py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] sm:text-[11px] mt-6 shadow-2xl">
-                    <span x-text="authMode === 'login' ? 'Enter Vidish' : 'Launch Account'"></span>
-                </button>
-            </form>
-            <div class="mt-8 text-center">
-                <button @click="authMode = (authMode === 'login' ? 'signup' : 'login')"
-                    class="text-[10px] font-bold text-gray-500 hover:text-[#FF5A5F] transition-colors uppercase tracking-widest">
                     <span
-                        x-text="authMode === 'login' ? 'Need an account? Sign up' : 'Already have an account? Sign in'"></span>
-                </button>
+                        class="ml-3 text-[10px] font-bold text-gray-500 uppercase tracking-widest group-hover:text-gray-300 transition-colors">Keep
+                        me logged in</span>
+                </label>
+                <a href="#"
+                    class="text-[9px] font-bold text-coral/60 hover:text-coral uppercase tracking-widest transition-colors">Forgot?</a>
             </div>
+
+            <button type="submit"
+                class="btn-coral w-full py-4 sm:py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] sm:text-[11px] mt-6 shadow-2xl">
+                <span x-text="authMode === 'login' ? 'Enter Vidish' : 'Launch Account'"></span>
+            </button>
+        </form>
+
+        <div class="mt-8 text-center">
+            <button @click="authMode = (authMode === 'login' ? 'signup' : 'login')"
+                class="text-[10px] font-bold text-gray-500 hover:text-[#FF5A5F] transition-colors uppercase tracking-widest">
+                <span
+                    x-text="authMode === 'login' ? 'Need an account? Sign up' : 'Already have an account? Sign in'"></span>
+            </button>
         </div>
     </div>
+</div>
 
     <footer class="w-full footer-concrete py-12 px-6 md:px-10 mt-20 relative z-20">
         <div

@@ -1,43 +1,186 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vidish - Mes Clips</title>
+    <title>Vidish | Mes Clips</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        coral: '#FF5A5F',
+                        darkBg: '#0f1115',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        [x-cloak] { display: none !important; }
+    </style>
 </head>
-<body class="bg-black text-white antialiased">
-    <div class="max-w-6xl mx-auto p-6">
-        <div class="flex justify-between items-end mb-10 border-b border-white/10 pb-6">
-            <div>
-                <h1 class="text-4xl font-black tracking-tighter uppercase italic">Vidish <span class="text-orange-500">Clips</span></h1>
-                <p class="text-gray-400 text-sm">Gérez vos vidéos promotionnelles</p>
-            </div>
+<body class="bg-darkBg text-white antialiased flex min-h-screen" x-data="{ openAddClip: false }">
+
+    <aside class="w-64 border-r border-white/5 flex flex-col fixed h-full bg-darkBg z-50">
+        <div class="p-8">
+            <h1 class="text-2xl font-black italic uppercase tracking-tighter text-white">
+                VIDISH<span class="text-coral">.</span>
+            </h1>
         </div>
 
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            @forelse($clips as $clip)
-            <div class="relative aspect-[9/16] rounded-[1.5rem] overflow-hidden bg-zinc-900 group border border-white/5">
-                <video src="{{ asset('storage/' . $clip->video_url) }}" 
-                       class="w-full h-full object-cover opacity-60"
-                       muted onmouseenter="this.play()" onmouseleave="this.pause(); this.currentTime = 0;">
-                </video>
+        <nav class="flex-1 px-4 space-y-2">
+            <a href="{{ route('vendor.dashboard') }}" class="flex items-center space-x-4 px-6 py-4 rounded-2xl text-gray-500 hover:bg-white/5 hover:text-white transition-all group">
+                <i class="fa-solid fa-chart-pie text-lg"></i>
+                <span class="text-xs font-black uppercase tracking-widest">Dashboard</span>
+            </a>
+            <a href="{{ route('vendor.clips') }}" class="flex items-center space-x-4 px-6 py-4 rounded-2xl bg-coral text-white shadow-lg shadow-coral/20 transition-all">
+                <i class="fa-solid fa-clapperboard text-lg"></i>
+                <span class="text-xs font-black uppercase tracking-widest">Mes Clips</span>
+            </a>
+            <a href="{{ route('vendor.plats') }}" class="flex items-center space-x-4 px-6 py-4 rounded-2xl text-gray-500 hover:bg-white/5 hover:text-white transition-all group">
+                <i class="fa-solid fa-utensils text-lg"></i>
+                <span class="text-xs font-black uppercase tracking-widest">Mes Plats</span>
+            </a>
+            <a href="{{ route('vendor.settings') }}" class="flex items-center space-x-4 px-6 py-4 rounded-2xl text-gray-400 hover:bg-white/5 hover:text-white transition-all">
+                <i class="fa-solid fa-gears text-lg"></i>
+                <span class="text-xs font-black uppercase tracking-widest">Ma Cuisine</span>
+            </a>
+        </nav>
 
-                <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black via-black/60 to-transparent">
-                    <p class="text-[11px] font-medium leading-tight mb-3 line-clamp-2">{{ $clip->description }}</p>
-                    <div class="flex items-center justify-between text-[10px] font-bold">
-                        <span><i class="fa-solid fa-play mr-1"></i> {{ number_format($clip->views_count) }}</span>
-                        <span><i class="fa-solid fa-heart mr-1 text-red-500"></i> {{ number_format($clip->likes_count) }}</span>
+        <div class="p-8 border-t border-white/5">
+            <form action="{{ route('logout') }}" method="POST">
+                @csrf
+                <button type="submit" class="flex items-center space-x-4 px-6 py-4 text-gray-500 hover:text-red-500 transition-all w-full text-left">
+                    <i class="fa-solid fa-arrow-right-from-bracket text-lg"></i>
+                    <span class="text-xs font-black uppercase tracking-widest">Déconnexion</span>
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <main class="flex-1 ml-64 p-8 md:p-12">
+        <div class="max-w-7xl mx-auto">
+            
+            <div class="flex justify-between items-end mb-12">
+                <div>
+                    <h1 class="text-4xl font-black tracking-tighter uppercase italic text-white">
+                        Mes <span class="text-coral">Clips</span>
+                    </h1>
+                    <p class="text-gray-500 text-[10px] font-bold uppercase tracking-[0.3em] mt-2">
+                        Vidéos promotionnelles du Restaurant
+                    </p>
+                </div>
+                
+                <button @click="openAddClip = true" 
+                   class="bg-white/5 border border-white/10 px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-coral hover:border-coral transition-all shadow-xl shadow-black/20">
+                    + Nouveau Clip
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                @forelse($clips as $clip)
+                <div class="bg-white/[0.03] rounded-[2.5rem] border border-white/5 p-6 transition-all duration-500 group hover:bg-white/[0.05] hover:border-coral/30">
+                    <div class="relative aspect-[9/16] rounded-[2rem] overflow-hidden mb-6 shadow-2xl">
+                        <video src="{{ asset('storage/' . $clip->video_path) }}" 
+                               class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-700"
+                               muted onmouseenter="this.play()" onmouseleave="this.pause(); this.currentTime = 0;">
+                        </video>
+                        <div class="absolute bottom-4 left-4 flex space-x-2">
+                            <div class="bg-darkBg/80 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10 flex items-center">
+                                <i class="fa-solid fa-eye text-coral text-[10px] mr-2"></i>
+                                <span class="text-white font-black text-[10px]">{{ number_format($clip->views_count ?? 0) }}</span>
+                            </div>
+                            <div class="bg-darkBg/80 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10 flex items-center">
+                                <i class="fa-solid fa-heart text-red-500 text-[10px] mr-2"></i>
+                                <span class="text-white font-black text-[10px]">{{ number_format($clip->likes_count ?? 0) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between items-start px-2">
+                        <div class="flex-1">
+                            <h3 class="font-black text-sm uppercase italic tracking-tighter text-white mb-1 leading-tight line-clamp-1">
+                                {{ $clip->dish ? $clip->dish->name : 'Clip Général' }}
+                            </h3>
+                            <p class="text-[9px] font-bold uppercase tracking-widest text-gray-500 italic line-clamp-2">
+                                {{ $clip->description }}
+                            </p>
+                        </div>
+                        <form action="{{ route('vendor.clips.destroy', $clip->id) }}" method="POST" class="ml-2">
+                            @csrf @method('DELETE')
+                            <button type="submit" class="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 text-gray-400 hover:bg-red-500 hover:text-white transition-all shadow-lg">
+                                <i class="fa-solid fa-trash-can text-xs"></i>
+                            </button>
+                        </form>
                     </div>
                 </div>
+                @empty
+                <div class="col-span-full py-32 text-center border-2 border-dashed border-white/5 rounded-[3rem] bg-white/[0.01]">
+                    <p class="text-gray-500 font-black uppercase tracking-widest text-xs">Aucune vidéo publiée...</p>
+                </div>
+                @endforelse
             </div>
-            @empty
-            <div class="col-span-full py-32 text-center border-2 border-dashed border-white/10 rounded-[3rem]">
-                <p class="text-gray-500 font-bold uppercase tracking-widest">Aucun clip publié</p>
+        </div>
+    </main>
+
+    <div x-show="openAddClip" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-darkBg/95 backdrop-blur-xl" x-transition.opacity>
+        <div @click.away="openAddClip = false" class="w-full max-w-2xl bg-[#16191e] border border-white/10 rounded-[3rem] p-10 shadow-2xl relative overflow-hidden">
+            
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-black italic uppercase tracking-tighter">Nouveau <span class="text-coral">Clip</span></h2>
+                <button @click="openAddClip = false" class="text-gray-500 hover:text-white transition-colors text-2xl">✕</button>
             </div>
-            @endforelse
+
+            @if ($errors->any())
+                <div class="bg-red-500/20 text-red-500 p-4 rounded-xl mb-4 text-[10px] font-black uppercase tracking-widest">
+                    <ul> @foreach ($errors->all() as $error) <li>{{ $error }}</li> @endforeach </ul>
+                </div>
+            @endif
+
+            <form action="{{ route('vendor.clips.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+                @csrf
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="col-span-2">
+                        <label class="text-[10px] text-gray-500 uppercase font-black tracking-widest ml-4 mb-2 block">Associer à un Plat</label>
+                        <div class="relative">
+                            <select name="dish_id" class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-coral transition-all font-bold appearance-none text-white text-sm">
+                                <option value="" class="bg-darkBg text-white">Clip Général (Restaurant)</option>
+                                @foreach (Auth::user()->restaurant->dishes ?? [] as $dish)
+                                    <option value="{{ $dish->id }}" class="bg-darkBg text-white">{{ $dish->name }}</option>
+                                @endforeach
+                            </select>
+                            <i class="fa-solid fa-chevron-down absolute right-6 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"></i>
+                        </div>
+                    </div>
+
+                    <div class="col-span-2">
+                        <label class="text-[10px] text-gray-500 uppercase font-black tracking-widest ml-4 mb-2 block">Fichier Vidéo (MP4, MOV)</label>
+                        <input type="file" name="video" required accept="video/*" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-coral/20 file:text-white file:font-black">
+                    </div>
+
+                    <div class="col-span-2">
+                        <label class="text-[10px] text-gray-500 uppercase font-black tracking-widest ml-4 mb-2 block">Description / Légende</label>
+                        <textarea name="description" rows="3" required placeholder="Légende de votre clip..." class="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-coral transition-all font-bold text-sm text-white"></textarea>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-coral py-5 rounded-[2rem] font-black uppercase tracking-widest text-[11px] shadow-2xl hover:scale-[1.02] transition-transform">
+                    Publier le Clip
+                </button>
+            </form>
         </div>
     </div>
+
+    <p class="fixed bottom-8 left-8 text-[8px] text-gray-700 uppercase tracking-[0.4em] font-bold rotate-180 [writing-mode:vertical-lr]">
+        Vidish Engineering &copy; 2026
+    </p>
+
 </body>
 </html>

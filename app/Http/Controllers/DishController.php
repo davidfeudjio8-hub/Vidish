@@ -5,43 +5,48 @@ namespace App\Http\Controllers;
 use App\Models\Dish;
 use App\Models\Video;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DishController extends Controller
 {
+    /**
+     * Traite l'ajout d'un plat via l'overlay du dashboard.
+     */
     public function store(Request $request)
     {
-        // Validation stricte
+        // 1. Validation stricte des données entrantes
         $request->validate([
             'name' => 'required|string|max:255|min:4',
             'price' => 'required|numeric',
             'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5000',
+            'image' => 'required|image|mimes:jpeg,png,jpg,webp|max:5000',
             'video' => 'nullable|mimes:mp4,mov,ogg|max:20000',
         ]);
 
-        // On récupère le restaurant de l'utilisateur authentifié
-        $restaurant = auth()->user()->restaurant;
+        // 2. On récupère le restaurant de l'utilisateur (via sa relation définie dans User)
+        $restaurant = Auth::user()->restaurant;
 
         if (!$restaurant) {
-            return redirect()->back()->with('error', 'Aucun restaurant associé à votre compte.');
+            return redirect()->back()->with('error', 'Aucun restaurant trouvé pour votre compte.');
         }
 
-        // 1. Gérer l'image du plat
+        // 3. Stockage de l'image (pour la colonne image_path)
         $imagePath = null;
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('dishes/images', 'public');
         }
 
-        // 2. Création du Plat
+        // 4. Création du Plat en DB
         $dish = Dish::create([
-            'restaurant_id' => $restaurant->id,
+            'restaurant_id' => Auth::user()->restaurant->id,
+            'user_id'       => Auth::id(),
             'name' => $request->name,
             'price' => $request->price,
             'description' => $request->description,
-            'image_path' => $imagePath, // Assure-toi que cette colonne existe dans dishes
+            'image_path' => $imagePath, 
         ]);
 
-        // 3. Gérer la Vidéo associée (si présente lors de la création du plat)
+        // 5. Gestion facultative du Clip Vidéo (L'essence de Vidish)
         if ($request->hasFile('video')) {
             $videoPath = $request->file('video')->store('dishes/videos', 'public');
 
@@ -51,6 +56,6 @@ class DishController extends Controller
             ]);
         }
 
-        return redirect()->back()->with('status', 'Le plat a été ajouté avec succès !');
+        return redirect()->back()->with('status', 'Le plat a été ajouté à votre carte !');
     }
 }
