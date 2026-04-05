@@ -91,4 +91,10 @@ class DishController extends Controller
 
     return redirect()->back()->with('status', 'Le plat a été retiré de la carte.');
 }
+public function edit($id)
+{
+    $dish = Dish::where('restaurant_id', Auth::user()->restaurant->id)->findOrFail($id);
+    // Vérifie bien que ce fichier existe : resources/views/vendor/plats/edit.blade.php
+    return view('vendor.plats.edit', compact('dish'));
+}
 }

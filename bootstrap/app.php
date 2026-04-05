@@ -13,28 +13,27 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         
-        // 1. Gestion des redirections pour les invités (non-connectés)
         $middleware->redirectGuestsTo(fn () => route('home', ['auth_trigger' => 'login']));
 
-        // 2. Gestion de la redirection "HOME" (quand un user connecté tente d'aller sur /login ou /register)
+        // CORRECTION : On s'assure que la redirection ne boucle pas
         $middleware->redirectTo(
             users: function (Request $request) {
-                if ($request->user() && $request->user()->role === 'restaurateur') {
-                    return route('vendor.dashboard');
+                if ($request->user()) {
+                    if ($request->user()->role === 'restaurateur') {
+                        return route('vendor.dashboard');
+                    }
+                    // Pour un client, on redirige vers le feed plutôt que le dashboard vide
+                    return route('video.feed');
                 }
-                return route('dashboard');
+                return route('home');
             }
         );
 
-        // 3. Définition des alias de Middleware
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckRole::class,
         ]);
 
-        // 4. Protection contre le "Session Expired" sur les appels AJAX (Optionnel mais recommandé pour ton Toggle)
-        $middleware->validateCsrfTokens(except: [
-            // 'vendor/status/update', // À décommenter si tu as des soucis de CSRF avec ton bouton AJAX
-        ]);
+        $middleware->validateCsrfTokens(except: []);
 
     })
     ->withExceptions(function (Exceptions $exceptions) {

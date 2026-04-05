@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Video;
 use App\Http\Controllers\VendorController;
 use App\Http\Controllers\RestaurantController;
 use App\Http\Controllers\DishController;
@@ -9,12 +8,12 @@ use App\Http\Controllers\VideoController;
 use Illuminate\Support\Facades\Route;
 
 // --- ACCUEIL (Public) ---
+// This route now returns the Landing Page view exclusively
 Route::get('/', function () {
-    $videos = Video::with('dish.restaurant')->latest()->get();
-    return view('welcome', compact('videos'));
+    return view('welcome');
 })->name('home');
 
-// --- ROUTES AUTHENTIFIÉES (User standard) ---
+// --- ROUTES AUTHENTIFIÉES ---
 Route::middleware('auth')->group(function () {
     
     Route::get('/dashboard', function () {
@@ -25,35 +24,29 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Le Feed vertical pour les clients
+    // Le Feed Vidish - Points to the VideoController which now returns 'client.feed'
     Route::get('/feed', [VideoController::class, 'index'])->name('video.feed');
+    
+    Route::get('/api/tags/search', [VideoController::class, 'searchTags']);
 
     // Inscription Restaurant
     Route::get('/restaurants/create', [RestaurantController::class, 'create'])->name('restaurants.create');
     Route::post('/restaurants', [RestaurantController::class, 'store'])->name('restaurants.store');
 });
 
-// --- GROUPE VENDOR (Espace Restaurateur) ---
+// --- GROUPE VENDOR ---
 Route::middleware(['auth', 'verified', 'role:restaurateur'])
     ->prefix('vendor') 
     ->name('vendor.')   
     ->group(function () {
-        
-        // Dashboard Principal
         Route::get('/dashboard', [VendorController::class, 'index'])->name('dashboard');
-        
-        // Gestion des Plats
         Route::get('/plats', [VendorController::class, 'managePlats'])->name('plats');
-        // Remplace ta ligne Route::resource par celle-ci :
         Route::resource('dishes', DishController::class)->except(['edit', 'show', 'create']);
 
-        // --- GESTION DES CLIPS (Vidéos) ---
-        // On utilise VideoController pour centraliser la logique des vidéos
-        Route::get('/clips', [VideoController::class, 'vendorIndex'])->name('clips'); 
-        Route::post('/clips/store', [VideoController::class, 'store'])->name('clips.store');
-        Route::delete('/clips/{id}', [VideoController::class, 'destroy'])->name('clips.destroy');
+        // GESTION DES CLIPS
+        Route::get('/clips', [VideoController::class, 'vendorIndex'])->name('clips');
+        Route::resource('clips', VideoController::class)->except(['index']);
 
-        // Paramètres & Statut du restaurant
         Route::get('/settings', [VendorController::class, 'settings'])->name('settings');
         Route::put('/settings/update', [VendorController::class, 'updateSettings'])->name('settings.update');
         Route::post('/status-update', [VendorController::class, 'updateStatus'])->name('status.update');

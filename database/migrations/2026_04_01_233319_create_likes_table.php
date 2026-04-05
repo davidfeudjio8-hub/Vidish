@@ -10,17 +10,22 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-{
-    Schema::create('likes', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('user_id')->constrained()->onDelete('cascade');
-        $table->foreignId('clip_id')->constrained()->onDelete('cascade');
-        $table->timestamps();
-        
-        // Prevents a user from liking the same clip twice
-        $table->unique(['user_id', 'clip_id']); 
-    });
-}
+    {
+        Schema::create('likes', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            
+            // On utilise video_id ici
+            $table->foreignId('video_id')->constrained('videos')->onDelete('cascade');
+            
+            $table->timestamps();
+            
+            /** * CONTRAINTE UNIQUE CORRIGÉE
+             * Empêche un utilisateur de liker la même VIDÉO deux fois
+             */
+            $table->unique(['user_id', 'video_id']); 
+        });
+    }
 
     /**
      * Reverse the migrations.
