@@ -81,11 +81,6 @@
                 <i class="fa-solid fa-utensils text-lg"></i>
                 <span class="text-xs font-black uppercase tracking-widest">Mes Plats</span>
             </a>
-            <a href="{{ route('vendor.settings') }}"
-                class="flex items-center space-x-4 px-6 py-4 rounded-2xl text-gray-400 hover:bg-white/5 hover:text-white transition-all">
-                <i class="fa-solid fa-gears text-lg"></i>
-                <span class="text-xs font-black uppercase tracking-widest">Ma Cuisine</span>
-            </a>
         </nav>
 
         <div class="p-8 border-t border-white/5">

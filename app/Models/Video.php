@@ -29,10 +29,12 @@ class Video extends Model
         return $this->belongsTo(Dish::class);
     }
 
+    /**
+     * Relation Polymorphe Many-to-Many
+     */
     public function tags()
     {
-        // Vérifie bien que ta table pivot est 'taggables' dans ta DB
-        return $this->belongsToMany(Tag::class, 'taggables');
+        return $this->morphToMany(Tag::class, 'taggable');
     }
 
     public function user()
@@ -45,8 +47,15 @@ class Video extends Model
         return $this->hasMany(View::class);
     }
 
+    // Un utilisateur peut aimer cette vidéo
     public function likes()
     {
         return $this->hasMany(Like::class);
+    }
+
+    // Cette vidéo peut recevoir plusieurs commentaires
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
     }
 }

@@ -12,7 +12,7 @@
         [x-cloak] { display: none !important; }
         .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 111, 97, 0.3); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 90, 95, 0.3); border-radius: 10px; }
         .comment-enter { transform: translateY(20px); opacity: 0; }
         .comment-enter-active { transform: translateY(0); opacity: 1; transition: all 0.5s ease-out; }
     </style>
@@ -24,6 +24,18 @@
     showClipModal: false,
     showDishModal: false
 }">
+
+    {{-- Overlay de Notification (Succès) --}}
+    @if(session('success'))
+    <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)" 
+         x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform translate-y-[-20px]"
+         x-transition:leave="transition ease-in duration-300" x-transition:leave-end="opacity-0 transform translate-y-[-20px]"
+         class="fixed top-6 right-6 z-[200] flex items-center bg-[#FF5A5F] text-white px-6 py-4 rounded-2xl shadow-2xl font-bold">
+        <i class="fas fa-check-circle mr-3 text-xl"></i>
+        <span>{{ session('success') }}</span>
+        <button @click="show = false" class="ml-4 opacity-50 hover:opacity-100">✕</button>
+    </div>
+    @endif
 
     {{-- Background --}}
     <div class="fixed inset-0 bg-cover bg-center z-[-2]" style="background-image: url('{{ asset('images/nature-background.jpg') }}');"></div>
@@ -37,54 +49,48 @@
             class="fixed lg:relative z-50 w-64 lg:w-20 lg:hover:w-64 glass-card p-5 flex flex-col transition-all duration-500 ease-in-out h-[calc(100vh-2rem)] md:h-full overflow-hidden mr-0 lg:mr-6 shadow-2xl">
 
             <div class="mb-10 flex items-center h-12 shrink-0">
-                <div class="w-10 h-10 bg-[#FF6F61] rounded-xl flex items-center justify-center font-black italic shadow-lg shadow-coral-500/30 text-xl shrink-0">V</div>
-                <h2 x-show="open || mobileMenu" x-cloak x-transition.opacity class="text-xl font-black ml-4 tracking-tighter whitespace-nowrap">VIDISH<span class="text-coral-400">.</span>VENDOR</h2>
+                <div class="w-10 h-10 bg-[#FF5A5F] rounded-xl flex items-center justify-center font-black italic shadow-lg shadow-[#FF5A5F]/30 text-xl shrink-0">V</div>
+                <h2 x-show="open || mobileMenu" x-cloak x-transition.opacity class="text-xl font-black ml-4 tracking-tighter whitespace-nowrap">VIDISH<span class="text-[#FF5A5F]">.</span>VENDOR</h2>
             </div>
 
             <nav class="flex-1 space-y-4 w-full">
                 {{-- Dashboard --}}
                 <a href="{{ route('vendor.dashboard') }}"
-                    class="flex items-center h-12 rounded-xl bg-white text-gray-950 px-3 relative group overflow-hidden">
+                    class="flex items-center h-12 rounded-xl bg-white text-gray-950 px-3 relative group overflow-hidden shadow-lg">
                     <div class="w-10 flex justify-center items-center shrink-0 z-10"><i class="fas fa-th-large text-xl"></i></div>
                     <span x-show="open || mobileMenu" x-cloak class="font-bold ml-3 z-10 whitespace-nowrap">Tableau de bord</span>
                 </a>
 
                 {{-- Aller au Feed (Public) --}}
-                <a href="{{ route('home') }}"
+                <a href="{{ route('video.feed') }}"
                     class="group flex items-center h-12 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all px-3">
-                    <div class="w-10 flex justify-center items-center shrink-0"><i class="fas fa-play-circle text-xl group-hover:text-coral-400 transition-colors"></i></div>
+                    <div class="w-10 flex justify-center items-center shrink-0"><i class="fas fa-play-circle text-xl group-hover:text-[#FF5A5F] transition-colors"></i></div>
                     <span x-show="open || mobileMenu" x-cloak class="font-semibold ml-3 whitespace-nowrap">Aller au feed</span>
                 </a>
 
-                {{-- Mes Plats (Route: vendor.plats) --}}
+                {{-- Mes Plats --}}
                 <a href="{{ route('vendor.plats') }}"
                     class="group flex items-center h-12 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all px-3">
-                    <div class="w-10 flex justify-center items-center shrink-0"><i class="fas fa-utensils text-xl group-hover:text-coral-400 transition-colors"></i></div>
+                    <div class="w-10 flex justify-center items-center shrink-0"><i class="fas fa-utensils text-xl group-hover:text-[#FF5A5F] transition-colors"></i></div>
                     <span x-show="open || mobileMenu" x-cloak class="font-semibold ml-3 whitespace-nowrap">Mes plats</span>
                 </a>
 
-                {{-- Mes Clips (Route: vendor.clips) --}}
+                {{-- Mes Clips --}}
                 <a href="{{ route('vendor.clips') }}"
                     class="group flex items-center h-12 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all px-3">
-                    <div class="w-10 flex justify-center items-center shrink-0"><i class="fas fa-film text-xl group-hover:text-coral-400 transition-colors"></i></div>
+                    <div class="w-10 flex justify-center items-center shrink-0"><i class="fas fa-film text-xl group-hover:text-[#FF5A5F] transition-colors"></i></div>
                     <span x-show="open || mobileMenu" x-cloak class="font-semibold ml-3 whitespace-nowrap">Mes clips</span>
-                </a>
-
-                <a href="#" class="group flex items-center h-12 rounded-xl text-gray-400 hover:text-white hover:bg-white/5 transition-all px-3 relative">
-                    <div class="w-10 flex justify-center items-center shrink-0"><i class="fas fa-envelope text-xl"></i></div>
-                    <span x-show="open || mobileMenu" x-cloak class="font-semibold ml-3 whitespace-nowrap">Messages</span>
-                    <span class="absolute top-3 left-8 w-2 h-2 bg-[#FF6F61] rounded-full animate-pulse"></span>
                 </a>
             </nav>
 
             <div class="space-y-2 pt-4 border-t border-white/10 shrink-0">
                 <a href="{{ route('vendor.settings') }}" class="group flex items-center h-12 text-gray-400 hover:text-white px-3 transition-colors">
-                    <div class="w-10 flex justify-center items-center shrink-0"><i class="fas fa-cog text-xl"></i></div>
+                    <div class="w-10 flex justify-center items-center shrink-0"><i class="fas fa-cog text-xl group-hover:rotate-90 transition-transform duration-500"></i></div>
                     <span x-show="open || mobileMenu" x-cloak class="font-semibold ml-3 whitespace-nowrap">Paramètres</span>
                 </a>
                 <form method="POST" action="{{ route('logout') }}" class="w-full">
                     @csrf
-                    <button type="submit" class="group flex items-center h-12 w-full text-gray-400 hover:text-coral-400 px-3 transition-colors">
+                    <button type="submit" class="group flex items-center h-12 w-full text-gray-400 hover:text-[#FF5A5F] px-3 transition-colors">
                         <div class="w-10 flex justify-center items-center shrink-0"><i class="fas fa-sign-out-alt text-xl"></i></div>
                         <span x-show="open || mobileMenu" x-cloak class="font-semibold ml-3 whitespace-nowrap">Déconnexion</span>
                     </button>
@@ -124,13 +130,13 @@
                         <span class="px-3 py-1 text-[10px] font-black rounded-full uppercase tracking-widest transition-all duration-300"
                             :class="isOpen ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'"
                             x-text="isOpen ? 'Ouvert' : 'Fermé'"></span>
-                        <button @click="toggle()" :disabled="loading" class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300" :class="isOpen ? 'bg-[#FF6F61]' : 'bg-gray-700'">
+                        <button @click="toggle()" :disabled="loading" class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-300" :class="isOpen ? 'bg-[#FF5A5F]' : 'bg-gray-700'">
                             <span :class="isOpen ? 'translate-x-6' : 'translate-x-1'" class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-300 shadow-sm"></span>
                         </button>
                     </div>
                     <div class="flex items-center space-x-4 border-l border-white/10 pl-6">
                         <a href="{{ route('vendor.settings') }}" class="relative group">
-                            <img src="{{ $restaurant->image_path ? asset('storage/' . $restaurant->image_path) : asset('images/default-restaurant.jpg') }}" class="w-10 h-10 rounded-xl border border-white/10 shadow-lg object-cover group-hover:border-coral-400 transition" alt="Profile">
+                            <img src="{{ $restaurant->image_path ? asset('storage/' . $restaurant->image_path) : asset('images/default-restaurant.jpg') }}" class="w-10 h-10 rounded-xl border border-white/10 shadow-lg object-cover group-hover:border-[#FF5A5F] transition" alt="Profile">
                         </a>
                     </div>
                 </div>
@@ -141,12 +147,12 @@
                     <div class="flex-1 space-y-6">
                         <div class="flex flex-col sm:flex-row justify-between items-start gap-4">
                             <div>
-                                <h1 class="text-3xl font-black tracking-tight leading-none uppercase italic">VIDISH<span class="text-coral-400">.</span>HUB</h1>
+                                <h1 class="text-3xl font-black tracking-tight leading-none uppercase italic">VIDISH<span class="text-[#FF5A5F]">.</span>HUB</h1>
                                 <p class="text-gray-400 mt-2 text-sm">Gérez <span class="text-white font-bold">{{ $restaurant->name }}</span> en temps réel.</p>
                             </div>
                             <div class="flex space-x-3">
-                                <button @click="showClipModal = true" class="bg-white/5 text-white font-black px-5 py-3 rounded-xl border border-white/10 hover:bg-white/10 transition flex items-center"><i class="fas fa-video mr-2 text-coral-500"></i> Nouveau Clip</button>
-                                <button @click="showDishModal = true" class="bg-[#FF6F61] text-white font-black px-5 py-3 rounded-xl shadow-lg shadow-coral-500/30 hover:bg-coral-600 transition flex items-center"><i class="fas fa-plus mr-2"></i> Nouveau Plat</button>
+                                <button @click="showClipModal = true" class="bg-white/5 text-white font-black px-5 py-3 rounded-xl border border-white/10 hover:bg-white/10 transition flex items-center"><i class="fas fa-video mr-2 text-[#FF5A5F]"></i> Nouveau Clip</button>
+                                <button @click="showDishModal = true" class="bg-[#FF5A5F] text-white font-black px-5 py-3 rounded-xl shadow-lg shadow-[#FF5A5F]/30 hover:bg-[#FF5A5F]/80 transition flex items-center"><i class="fas fa-plus mr-2"></i> Nouveau Plat</button>
                             </div>
                         </div>
 
@@ -154,20 +160,20 @@
                         <div class="space-y-4">
                             <h3 class="text-xs font-black text-gray-500 uppercase tracking-[0.2em]">Commandes Prioritaires</h3>
                             @forelse($orders as $order)
-                                <div class="glass-card p-6 rounded-3xl border-l-4 border-coral-500 transition hover:bg-white/[0.05]">
+                                <div class="glass-card p-6 rounded-3xl border-l-4 border-[#FF5A5F] transition hover:bg-white/[0.05]">
                                     <div class="flex justify-between items-start mb-4">
                                         <div class="flex items-center">
-                                            <div class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 mr-4 shadow-inner"><i class="fas fa-receipt text-coral-500 text-xl"></i></div>
+                                            <div class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 mr-4 shadow-inner"><i class="fas fa-receipt text-[#FF5A5F] text-xl"></i></div>
                                             <div>
                                                 <h4 class="font-black text-lg uppercase tracking-tight">#{{ $order->id }}</h4>
                                                 <p class="text-xs text-gray-500 italic">Prévu pour {{ \Carbon\Carbon::parse($order->delivery_time)->format('H:i') }}</p>
                                             </div>
                                         </div>
-                                        <span class="px-3 py-1 bg-coral-500/20 text-coral-400 text-[10px] font-black rounded-full uppercase tracking-widest">{{ $order->status }}</span>
+                                        <span class="px-3 py-1 bg-[#FF5A5F]/20 text-[#FF5A5F] text-[10px] font-black rounded-full uppercase tracking-widest">{{ $order->status }}</span>
                                     </div>
                                     <div class="flex items-center justify-between gap-4">
-                                        <div class="flex-1 h-1 bg-white/5 rounded-full overflow-hidden"><div class="h-full bg-coral-500 transition-all duration-700" style="width: 50%"></div></div>
-                                        <button class="text-[10px] font-black uppercase text-coral-400 hover:text-white transition">Détails <i class="fas fa-arrow-right ml-1"></i></button>
+                                        <div class="flex-1 h-1 bg-white/5 rounded-full overflow-hidden"><div class="h-full bg-[#FF5A5F] transition-all duration-700" style="width: 50%"></div></div>
+                                        <button class="text-[10px] font-black uppercase text-[#FF5A5F] hover:text-white transition">Détails <i class="fas fa-arrow-right ml-1"></i></button>
                                     </div>
                                 </div>
                             @empty
@@ -206,9 +212,9 @@
                                 <div class="space-y-4">
                                     <template x-for="(comment, index) in activeComments" :key="index">
                                         <div x-transition:enter-start="comment-enter" class="flex items-start space-x-3 bg-white/5 p-3 rounded-2xl border border-white/5">
-                                            <img :src="comment.user_avatar || '/images/default-avatar.png'" class="w-8 h-8 rounded-full border border-coral-500/30">
+                                            <img :src="comment.user_avatar || '/images/default-avatar.png'" class="w-8 h-8 rounded-full border border-[#FF5A5F]/30">
                                             <div>
-                                                <p class="text-[10px] font-black text-coral-400 uppercase" x-text="comment.user_name"></p>
+                                                <p class="text-[10px] font-black text-[#FF5A5F] uppercase" x-text="comment.user_name"></p>
                                                 <p class="text-xs text-gray-200" x-text="comment.content"></p>
                                             </div>
                                         </div>
@@ -246,62 +252,62 @@
         </main>
     </div>
 
-    {{-- MODAL NOUVEAU PLAT (Route: vendor.dishes.store) --}}
+    {{-- MODAL NOUVEAU PLAT --}}
     <div x-show="showDishModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4">
         <div @click="showDishModal = false" class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
-        <div class="glass-card w-full max-w-lg p-8 rounded-[2.5rem] relative z-10">
-            <h2 class="text-2xl font-black uppercase italic mb-6">Ajouter un <span class="text-coral-400">Plat</span></h2>
+        <div class="glass-card w-full max-w-lg p-8 rounded-[2.5rem] relative z-10 shadow-2xl border border-white/10">
+            <h2 class="text-2xl font-black uppercase italic mb-6">Ajouter un <span class="text-[#FF5A5F]">Plat</span></h2>
             <form action="{{ route('vendor.dishes.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
                 @csrf
                 <div class="space-y-1">
                     <label class="text-gray-500 font-black uppercase text-[10px]">Nom du plat</label>
-                    <input type="text" name="name" required class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-coral-500 outline-none" placeholder="ex: Burger Signature">
+                    <input type="text" name="name" required class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-[#FF5A5F] outline-none transition" placeholder="ex: Burger Signature">
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-1">
                         <label class="text-gray-500 font-black uppercase text-[10px]">Prix (XAF)</label>
-                        <input type="number" name="price" required class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-coral-500">
+                        <input type="number" name="price" required class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-[#FF5A5F] transition">
                     </div>
                     <div class="space-y-1">
                         <label class="text-gray-500 font-black uppercase text-[10px]">Photo</label>
-                        <input type="file" name="image" class="w-full text-xs text-gray-400 file:py-2 file:px-4 file:rounded-full file:bg-coral-500/10 file:text-coral-400">
+                        <input type="file" name="image" class="w-full text-xs text-gray-400 file:py-2 file:px-4 file:rounded-full file:bg-[#FF5A5F]/10 file:text-[#FF5A5F] file:border-none">
                     </div>
                 </div>
                 <div class="space-y-1">
                     <label class="text-gray-500 font-black uppercase text-[10px]">Description</label>
-                    <textarea name="description" rows="2" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-coral-500"></textarea>
+                    <textarea name="description" rows="2" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-[#FF5A5F] transition"></textarea>
                 </div>
-                <button type="submit" class="w-full bg-coral-500 py-4 rounded-2xl font-black uppercase tracking-widest shadow-lg shadow-coral-500/20">Enregistrer le plat</button>
+                <button type="submit" class="w-full bg-[#FF5A5F] py-4 rounded-2xl font-black uppercase tracking-widest shadow-lg shadow-[#FF5A5F]/20 hover:scale-[1.02] transition active:scale-95">Enregistrer le plat</button>
             </form>
         </div>
     </div>
 
-    {{-- MODAL NOUVEAU CLIP (Route: vendor.clips.store) --}}
+    {{-- MODAL NOUVEAU CLIP --}}
     <div x-show="showClipModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4">
         <div @click="showClipModal = false" class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
-        <div class="glass-card w-full max-w-lg p-8 rounded-[2.5rem] relative z-10">
-            <h2 class="text-2xl font-black uppercase italic mb-6">Poster un <span class="text-coral-500">Vidish Clip</span></h2>
+        <div class="glass-card w-full max-w-lg p-8 rounded-[2.5rem] relative z-10 shadow-2xl border border-white/10">
+            <h2 class="text-2xl font-black uppercase italic mb-6">Poster un <span class="text-[#FF5A5F]">Vidish Clip</span></h2>
             <form action="{{ route('vendor.clips.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
                 @csrf
-                <div class="w-full h-48 border-2 border-dashed border-white/10 rounded-3xl flex flex-col items-center justify-center relative group hover:border-coral-500 transition cursor-pointer">
-                    <i class="fas fa-cloud-upload-alt text-3xl text-gray-500 mb-2"></i>
+                <div class="w-full h-48 border-2 border-dashed border-white/10 rounded-3xl flex flex-col items-center justify-center relative group hover:border-[#FF5A5F] transition cursor-pointer">
+                    <i class="fas fa-cloud-upload-alt text-3xl text-gray-500 mb-2 group-hover:text-[#FF5A5F]"></i>
                     <span class="text-[10px] font-black uppercase text-gray-500 tracking-widest">Choisir la vidéo (.mp4)</span>
                     <input type="file" name="video" required class="absolute inset-0 opacity-0 cursor-pointer">
                 </div>
                 <div class="space-y-1">
                     <label class="text-gray-500 font-black uppercase text-[10px]">Description accrocheuse</label>
-                    <textarea name="caption" rows="2" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-coral-500" placeholder="Donnez faim..."></textarea>
+                    <textarea name="caption" rows="2" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-[#FF5A5F] transition" placeholder="Donnez faim..."></textarea>
                 </div>
                 <div class="space-y-1">
                     <label class="text-gray-500 font-black uppercase text-[10px]">Associer à un plat</label>
-                    <select name="dish_id" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none text-sm">
+                    <select name="dish_id" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none text-sm focus:border-[#FF5A5F]">
                         <option value="" class="bg-[#191919]">Aucun plat spécifique</option>
                         @foreach ($dishes as $dish)
                             <option value="{{ $dish->id }}" class="bg-[#191919]">{{ $dish->name }}</option>
                         @endforeach
                     </select>
                 </div>
-                <button type="submit" class="w-full bg-white text-black py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-coral-500 hover:text-white transition">Publier maintenant</button>
+                <button type="submit" class="w-full bg-white text-black py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-[#FF5A5F] hover:text-white transition hover:scale-[1.02] active:scale-95">Publier maintenant</button>
             </form>
         </div>
     </div>
@@ -315,11 +321,11 @@
                 labels: {!! json_encode($chartLabels ?? ['L', 'M', 'M', 'J', 'V', 'S', 'D']) !!},
                 datasets: [{
                     data: {!! json_encode($chartData ?? [0, 0, 0, 0, 0, 0, 0]) !!},
-                    borderColor: '#FF6F61',
+                    borderColor: '#FF5A5F',
                     borderWidth: 3,
                     tension: 0.4,
                     fill: true,
-                    backgroundColor: 'rgba(255, 111, 97, 0.1)'
+                    backgroundColor: 'rgba(255, 90, 95, 0.1)'
                 }]
             },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.2)', font: { size: 10 } } } } }

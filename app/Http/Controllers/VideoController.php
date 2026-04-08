@@ -10,16 +10,20 @@ use Illuminate\Support\Facades\Storage;
 
 class VideoController extends Controller
 {
+    /**
+     * Affiche le feed pour les clients
+     */
     public function index()
     {
-        // On récupère tout, avec les relations pour éviter le N+1
-        // Variable changed to $clips to match your feed.blade.php
+        // On récupère les clips avec les relations pour éviter le problème N+1
         $clips = Video::with(['dish.restaurant', 'restaurant', 'tags'])->latest()->get();
 
-        // Target the 'client' folder where your feed.blade.php is located
         return view('client.feed', compact('clips'));
     }
 
+    /**
+     * Affiche la gestion des clips pour le restaurateur
+     */
     public function vendorIndex()
     {
         $user = Auth::user();
@@ -38,6 +42,9 @@ class VideoController extends Controller
         return view('vendor.clips', compact('clips', 'allTags'));
     }
 
+    /**
+     * Enregistre un nouveau clip
+     */
     public function store(Request $request)
     {
         $request->validate([
@@ -64,8 +71,12 @@ class VideoController extends Controller
         return redirect()->back()->with('success', 'Clip publié !');
     }
 
+    /**
+     * Met à jour un clip existant
+     */
     public function update(Request $request, Video $clip)
     {
+        // Sécurité : Vérifier que le clip appartient bien au restaurant de l'utilisateur
         if ($clip->restaurant_id !== Auth::user()->restaurant->id) {
             abort(403);
         }
@@ -79,7 +90,10 @@ class VideoController extends Controller
         ]);
 
         if ($request->hasFile('video')) {
-            Storage::disk('public')->delete($clip->video_path);
+            // Supprimer l'ancienne vidéo physiquement
+            if (Storage::disk('public')->exists($clip->video_path)) {
+                Storage::disk('public')->delete($clip->video_path);
+            }
             $clip->video_path = $request->file('video')->store('clips', 'public');
         }
 
@@ -94,6 +108,9 @@ class VideoController extends Controller
         return redirect()->back()->with('success', 'Clip mis à jour !');
     }
 
+    /**
+     * Supprime un clip
+     */
     public function destroy(Video $clip)
     {
         if ($clip->restaurant_id !== auth()->user()->restaurant->id) {
@@ -109,6 +126,9 @@ class VideoController extends Controller
         return redirect()->back()->with('success', 'Le clip a été supprimé avec succès.');
     }
 
+    /**
+     * Gère la synchronisation des tags (Relation Polymorphe)
+     */
     private function syncTags(Video $video, ?string $tagsString)
     {
         if (!$tagsString) {
@@ -116,20 +136,26 @@ class VideoController extends Controller
             return;
         }
 
+        // Nettoyage de la chaîne de caractères (virgules, espaces)
         $tagNames = array_filter(array_map('trim', explode(',', $tagsString)));
         $tagIds = [];
 
         foreach ($tagNames as $name) {
-            $cleanName = ltrim($name, '#');
+            $cleanName = ltrim($name, '#'); // Enlever le # si l'utilisateur l'a tapé
+            
             if (!empty($cleanName)) {
                 $tag = Tag::firstOrCreate(['name' => $cleanName]);
                 $tagIds[] = $tag->id;
                 
-                if (!$video->tags()->where('tags.id', $tag->id)->exists()) {
+                // Correction ici : Utilisation de la relation polymorphe
+                // On vérifie si le tag est déjà lié à cette vidéo précise
+                if (!$video->tags->contains($tag->id)) {
                     $tag->increment('use_count');
                 }
             }
         }
+
+        // Met à jour la table 'taggables' automatiquement avec taggable_id et taggable_type
         $video->tags()->sync($tagIds);
     }
 }

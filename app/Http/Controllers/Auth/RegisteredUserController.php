@@ -47,6 +47,15 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        // --- Logique de redirection personnalisée pour Vidish ---
+
+        // 1. Si c'est un nouveau Restaurateur, on l'envoie créer sa fiche restaurant
+        if ($user->role === 'restaurateur') {
+            return redirect()->route('restaurants.create');
+        }
+
+        // 2. Si c'est un Client, on l'envoie vers le flux vidéo (accueil)
+        // Note: Assure-toi que la route 'video.feed' existe dans web.php
+        return redirect()->route('video.feed');
     }
 }
