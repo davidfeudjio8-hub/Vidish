@@ -151,8 +151,8 @@
                                 <p class="text-gray-400 mt-2 text-sm">Gérez <span class="text-white font-bold">{{ $restaurant->name }}</span> en temps réel.</p>
                             </div>
                             <div class="flex space-x-3">
-                                <button @click="showClipModal = true" class="bg-white/5 text-white font-black px-5 py-3 rounded-xl border border-white/10 hover:bg-white/10 transition flex items-center"><i class="fas fa-video mr-2 text-[#FF5A5F]"></i> Nouveau Clip</button>
-                                <button @click="showDishModal = true" class="bg-[#FF5A5F] text-white font-black px-5 py-3 rounded-xl shadow-lg shadow-[#FF5A5F]/30 hover:bg-[#FF5A5F]/80 transition flex items-center"><i class="fas fa-plus mr-2"></i> Nouveau Plat</button>
+                                <a href="{{ route('vendor.clips') }}"class="bg-white/5 text-white font-black px-5 py-3 rounded-xl border border-white/10 hover:bg-white/10 transition flex items-center"><i class="fas fa-video mr-2 text-[#FF5A5F]"></i> Nouveau Clip</a>
+                                <a href="{{ route('vendor.plats') }}"class="bg-[#FF5A5F] text-white font-black px-5 py-3 rounded-xl shadow-lg shadow-[#FF5A5F]/30 hover:bg-[#FF5A5F]/80 transition flex items-center"><i class="fas fa-plus mr-2"></i> Nouveau Plat</a>
                             </div>
                         </div>
 

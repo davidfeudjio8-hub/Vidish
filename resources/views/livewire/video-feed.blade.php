@@ -7,10 +7,8 @@ use App\Models\Like;
 use App\Models\Comment;
 use App\Models\Tag;
 use Illuminate\Support\Facades\Auth;
-// Ajout de "layout" dans l'import Volt
 use function Livewire\Volt\{state, mount, on, layout};
 
-// On force l'utilisation du layout "guest" qui est généralement vide de toute nav bar
 layout('layouts.guest');
 
 state([
@@ -51,6 +49,15 @@ $fetchTags = function () {
     }
 };
 
+/**
+ * REDIRECT TO EXPLORE
+ * Logic: Auto-fills search on Explore page by passing it in the URL
+ */
+$navigateToExplore = function ($tagName) {
+    $formattedTag = '#' . ltrim($tagName, '#');
+    return redirect()->route('video.explore', ['search' => $formattedTag]);
+};
+
 // Action : Like/Unlike
 $toggleLike = function ($videoId) {
     $like = Like::where('user_id', Auth::id())->where('video_id', $videoId)->first();
@@ -88,9 +95,7 @@ $postComment = function () {
 
 ?>
 
-{{-- Utilisation de fixed inset-0 pour s'assurer que le design prend TOUT l'écran --}}
 <div class="fixed inset-0 bg-black text-white antialiased flex overflow-hidden font-sans z-[9999]">
-    {{-- Configuration Tailwind & Styles --}}
     <style>
         :root { --coral: #FF5A5F; --darkBg: #0f1115; }
         [x-cloak] { display: none !important; }
@@ -100,7 +105,6 @@ $postComment = function () {
         .text-coral { color: var(--coral); }
         .bg-coral { background-color: var(--coral); }
         .border-coral { border-color: var(--coral); }
-        /* Reset pour éviter tout scroll parasite du body Laravel */
         body { overflow: hidden !important; margin: 0 !important; }
     </style>
 
@@ -126,7 +130,8 @@ $postComment = function () {
                 @if(count($suggestions) > 0)
                 <div class="absolute left-0 right-0 mt-2 bg-[#0f1115] border border-white/10 rounded-xl overflow-hidden shadow-2xl z-[100]">
                     @foreach($suggestions as $tag)
-                    <button wire:click="$set('searchQuery', '#{{ $tag['name'] }}'); $set('suggestions', []); loadClips()" 
+                    {{-- Modification ici: Utilisation de navigateToExplore --}}
+                    <button wire:click="navigateToExplore('{{ $tag['name'] }}')" 
                             class="w-full text-left px-4 py-3 text-[10px] font-black uppercase hover:bg-coral transition-all">
                         <span class="text-white/50 mr-1">#</span>{{ $tag['name'] }}
                     </button>
@@ -159,10 +164,10 @@ $postComment = function () {
         <div class="p-4 border-t border-white/5">
             <div class="flex items-center space-x-3 p-2 rounded-2xl hover:bg-white/5 cursor-pointer transition-all">
                 <div class="w-10 h-10 rounded-full bg-coral flex items-center justify-center font-bold text-sm uppercase shadow-lg shadow-coral/20">
-                    {{ substr(Auth::user()->name, 0, 1) }}
+                    {{ substr(Auth::user()->name ?? 'U', 0, 1) }}
                 </div>
                 <div class="hidden lg:block overflow-hidden">
-                    <p class="text-[10px] font-black uppercase tracking-widest leading-none truncate">{{ Auth::user()->name }}</p>
+                    <p class="text-[10px] font-black uppercase tracking-widest leading-none truncate">{{ Auth::user()->name ?? 'Guest' }}</p>
                     <p class="text-[8px] text-gray-500 uppercase mt-1">Mon Compte</p>
                 </div>
             </div>
